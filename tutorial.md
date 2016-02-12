@@ -127,7 +127,7 @@ person.preferredColors = ['black','yellow','white']
 person.bornDate = new Date()       //Date or moment.js instance
 //All operations are done through promises
 //so expect to do this then-catch everytime you do something
-person.persistSelf()
+person.save()
   .then(function(p){
     console.log('We have saved the model as a node into Neo4j.')
   })
@@ -168,13 +168,6 @@ person.car = car
 person.save(['car'])
 ```
 
-
-is the same as
-
-```javascript
-person.persistOneRelation('car')
-```
-
 For many relations
 
 ```javascript
@@ -182,13 +175,6 @@ var toy1 = Toy.instantiate({name: 'jerry'})
 var toy2 = Toy.instantiate({name: 'tom'})
 person.toys = [toy1, toy2]
 person.save('toys')
-```
-
-
-is the same as
-
-```javascript
-person.persistManyRelation('toys')
 ```
 
 Lets delete some models. remove() is a soft delete (just renames the label of the node in Neo4j to _ + OriginalLabel)
