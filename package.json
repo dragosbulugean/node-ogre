@@ -1,0 +1,32 @@
+{
+  "name": "node-ogre",
+  "version": "0.1.3",
+  "description": "Object<->Graph Mapper for Neo4j/Node.js",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dragosbulugean/node-ogre.git"
+  },
+  "author": "Dragos Bulugean",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.2.1",
+    "chance": "^0.5.9",
+    "lodash": "^3.10.1",
+    "moment": "^2.7.0",
+    "seraph": "^0.14.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.4.5",
+    "babel-core": "^6.4.5",
+    "babel-plugin-syntax-async-functions": "^6.3.13",
+    "babel-preset-es2015": "^6.3.13",
+    "chai": "^1.9.1",
+    "gulp": "^3.8.10",
+    "gulp-babel": "^6.1.2",
+    "gulp-docco": "0.0.4",
+    "gulp-mocha": "^2.0.0",
+    "gulp-shell": "^0.4.0",
+    "istanbul": "^0.3.6"
+  }
+}

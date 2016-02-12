@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Model.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>Model.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/**
+ * Created by Dragos on 5/20/14.
+ */</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Model constructor</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Model = <span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(label, definition, events)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>We cannot live without a label or a definition for the model</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>(!label || !definition)
+		<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'You must supply a label and a definition to the model.'</span>)
+
+	<span class="hljs-keyword">this</span>.label = label
+    <span class="hljs-keyword">this</span>.definition = definition
+
+	<span class="hljs-keyword">var</span> events = events || {}
+	<span class="hljs-keyword">var</span> primitiveFields = []
+	<span class="hljs-keyword">var</span> relationFields = []</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Gets fields that are of type anything other than OneRelation and ManyRelation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.getPrimitiveFields = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">return</span> primitiveFields
+	}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Gets fields that are of type OneRelation and ManyRelation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.getRelationFields = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">return</span> relationFields
+	}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Gets all fields</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.getAllFields = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">return</span> _.union(<span class="hljs-keyword">this</span>.getPrimitiveFields(), <span class="hljs-keyword">this</span>.getRelationFields())
+	}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Gets events(callbacks) set for the model</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.getEvents = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">return</span> events
+	}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Separate fields into primitive, relation and file</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> property <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.definition) {
+		<span class="hljs-keyword">var</span> definition = <span class="hljs-keyword">this</span>.definition[property]
+		<span class="hljs-keyword">if</span> (definition.type <span class="hljs-keyword">instanceof</span> FieldTypes.OneRelation
+			  || definition.type <span class="hljs-keyword">instanceof</span> FieldTypes.ManyRelation){
+			relationFields.push(property)
+		}
+		<span class="hljs-keyword">else</span> {
+			primitiveFields.push(property)
+		}
+	}
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Alias prototype</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> M = Model.prototype</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Make an instance of an already defined model</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.instantiate = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(data)</span> </span>{
+	<span class="hljs-keyword">var</span> instance = <span class="hljs-keyword">new</span> Model(<span class="hljs-keyword">this</span>.label, <span class="hljs-keyword">this</span>.definition)
+	instance.db(<span class="hljs-keyword">this</span>.db())
+	instance.data = {}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Getters and setters synthetisation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> properties = {}
+	<span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> definition <span class="hljs-keyword">in</span> instance.definition) {
+		properties[definition] = {
+			get: utils.wrapGet(instance, definition),
+			set: utils.wrapSet(instance, definition),
+			enumerable: <span class="hljs-literal">true</span>,
+			configurable: <span class="hljs-literal">true</span>
+		}
+	}
+	<span class="hljs-built_in">Object</span>.defineProperties(instance, properties)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Initialise arrays</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> def <span class="hljs-keyword">in</span> instance.definition) {
+		<span class="hljs-keyword">var</span> definition = instance.definition[def]
+		<span class="hljs-keyword">if</span>(definition.type <span class="hljs-keyword">instanceof</span> FieldTypes.ManyRelation) {
+			instance.data[def] = []
+		}
+	}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Populate with data</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	instance.populateFields(data)
+	<span class="hljs-keyword">return</span> instance
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Populates model instance with data</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.populateFields = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(data)</span> </span>{
+	_.each(data, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value, key)</span></span>{
+		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.definition.hasOwnProperty(key)) {
+
+			<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.definition[key].type === FieldTypes.Date) {
+				<span class="hljs-keyword">this</span>.set(key, <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(value))
+			}
+
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.definition[key].type === FieldTypes.JSON) {
+				<span class="hljs-keyword">this</span>.set(key, <span class="hljs-built_in">JSON</span>.parse(value))
+			}
+
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.definition[key].type === FieldTypes.Array) {
+				<span class="hljs-keyword">this</span>.set(key, value)
+			}
+
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.definition[key].type <span class="hljs-keyword">instanceof</span> FieldTypes.OneRelation) {
+				<span class="hljs-keyword">if</span>(_.keys(value).length === <span class="hljs-number">1</span>) {
+					<span class="hljs-keyword">this</span>[key] = value.id
+				} <span class="hljs-keyword">else</span> {
+					<span class="hljs-keyword">if</span>(value.id) {
+						<span class="hljs-keyword">this</span>[key] = <span class="hljs-keyword">this</span>.definition[key].type.to.instantiate(value)
+					} <span class="hljs-keyword">else</span> {
+						<span class="hljs-keyword">this</span>[key] = <span class="hljs-literal">null</span>
+					}
+				}
+			}
+
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.definition[key].type <span class="hljs-keyword">instanceof</span> FieldTypes.ManyRelation){
+				_.each(value, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span></span>{
+					<span class="hljs-keyword">if</span>(_.keys(item).length === <span class="hljs-number">1</span>) {
+						<span class="hljs-keyword">if</span>(item.id) <span class="hljs-keyword">this</span>[key].push(item.id)
+					} <span class="hljs-keyword">else</span> {
+						<span class="hljs-keyword">if</span>(item.id) <span class="hljs-keyword">this</span>[key].push(<span class="hljs-keyword">this</span>.definition[key].type.to.instantiate(item))
+					}
+				}, <span class="hljs-keyword">this</span>)
+			}
+
+			<span class="hljs-keyword">else</span> {
+				<span class="hljs-keyword">this</span>.set(key, value)
+			}
+		}
+	}, <span class="hljs-keyword">this</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Low level Getters for data. Used inside properties</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.get = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property)</span> </span>{
+	<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.definition.hasOwnProperty(property)) {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.data[property]
+    }
+	<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'No such property!'</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Low level Setters for data. Used inside properties</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.set = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property, value)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(property) || _.isUndefined(value)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+	<span class="hljs-keyword">if</span>(!<span class="hljs-keyword">this</span>.data) {
+		<span class="hljs-keyword">this</span>.throwNotInstantiatedError()
+	}
+
+	<span class="hljs-keyword">if</span>(_.contains(<span class="hljs-keyword">this</span>.getPrimitiveFields(), property)) {
+		<span class="hljs-keyword">if</span>(_.isUndefined(ValidationManager.validateType(<span class="hljs-keyword">this</span>.definition[property].type, value))){
+			<span class="hljs-keyword">this</span>.data[property] = value
+			<span class="hljs-keyword">this</span>.isSyncronised = <span class="hljs-literal">false</span>
+			<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.getEvents()[Constants.Events.propertyChange])
+				<span class="hljs-keyword">this</span>.getEvents()[Constants.Events.propertyChange].run(<span class="hljs-keyword">this</span>)
+		} <span class="hljs-keyword">else</span> {
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Value '</span> + value + <span class="hljs-string">' of property '</span> + property + <span class="hljs-string">' does not match the type declared in '</span> + <span class="hljs-keyword">this</span>.label + <span class="hljs-string">'!'</span>)
+		}
+	}
+	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(_.contains(<span class="hljs-keyword">this</span>.getRelationFields(), property)) {
+		<span class="hljs-keyword">this</span>.data[property] = value
+		<span class="hljs-keyword">this</span>.isSyncronised = <span class="hljs-literal">false</span>
+		<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.getEvents()[Constants.Events.propertyChange])
+			<span class="hljs-keyword">this</span>.getEvents()[Constants.Events.propertyChange].run(<span class="hljs-keyword">this</span>)
+	}
+	<span class="hljs-keyword">else</span> {
+		<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Property '</span> + property + <span class="hljs-string">' not found in '</span> + <span class="hljs-keyword">this</span>.label + <span class="hljs-string">'!'</span>)
+	}
+
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Get or set db instance used in node-cypher to perform queries</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.db = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(db)</span> </span>{
+	<span class="hljs-keyword">if</span>(!db) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.__db
+	<span class="hljs-keyword">this</span>.__db = db
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Find a model by id</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.findById = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id, selectList, embedList)</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.findById(<span class="hljs-keyword">this</span>, id, selectList, embedList)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Find a list of models by an ID array</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.findByIdArray = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(idArray, selectList, embedList)</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.findByIdArray(<span class="hljs-keyword">this</span>, idArray, selectList, embedList)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Find all models - careful, it might crash your app or neo4j if there`s many nodes in neo4j</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.findAll = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(selectList, embedList)</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.findAll(<span class="hljs-keyword">this</span>, selectList, embedList)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Find models by a js object example
+example = {name:’John’}</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.findByExample = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(example, selectList, embedList)</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.findByExample(<span class="hljs-keyword">this</span>, example, selectList, embedList)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Find models by a query builder</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.findByQueryBuilder = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(queryBuilder)</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.findByQueryBuilder(<span class="hljs-keyword">this</span>, queryBuilder)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Finds models by a raw query string
+Careful to return the values you want to have in the model</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.findByQueryString = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(query)</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.findByQueryString(<span class="hljs-keyword">this</span>, query)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Returns a requested number of random nodes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.findRandom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(number, selectList, embedList)</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.findRandom(<span class="hljs-keyword">this</span>, number, selectList, embedList)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Counts all neo4j nodes of this label</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.count = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">return</span> Finders.count(<span class="hljs-keyword">this</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Persists the sole model, without the relations and relationed models</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.persistSelf = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">return</span> PersistenceManager.persistModel(<span class="hljs-keyword">this</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Persists the relation and the relationed model, without this model itself</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.persistOneRelation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(field)</span> </span>{
+	<span class="hljs-keyword">return</span> PersistenceManager.persistOneRelation(<span class="hljs-keyword">this</span>, field)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Persists the relations and the relationed models, without this model itself</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.persistManyRelation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(field)</span> </span>{
+	<span class="hljs-keyword">return</span> PersistenceManager.persistManyRelation(<span class="hljs-keyword">this</span>, field)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Persists this model, its relationships and the relationed models</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.save = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(relationed)</span> </span>{
+	<span class="hljs-keyword">return</span> PersistenceManager.save(<span class="hljs-keyword">this</span>, relationed)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Soft-deletes by id, or if id not supplied checks if it`s a saved instance and if it is removes it</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.remove = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(idOrInstance)</span> </span>{
+	<span class="hljs-keyword">return</span> PersistenceManager.remove(<span class="hljs-keyword">this</span>, idOrInstance, <span class="hljs-literal">false</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Hard-deletes by id, or if id not supplied checks if it`s a saved instance and if it is removes it</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.hardRemove = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(idOrInstance)</span> </span>{
+	<span class="hljs-keyword">return</span> PersistenceManager.remove(<span class="hljs-keyword">this</span>, idOrInstance, <span class="hljs-literal">true</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Validates the model</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.validate = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">return</span> ValidationManager.validateModel(<span class="hljs-keyword">this</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>Throw not instantiated Error</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.throwNotInstantiatedError = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">throw</span> <span class="hljs-keyword">this</span>.getNotInstantiatedError()
+}
+
+M.getNotInstantiatedError = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Errors.NotInstantiatedError(<span class="hljs-string">'You cannot call this function on non-instantiated Neo4jModels. '</span> +
+		<span class="hljs-string">'Please call instantiate() on Model.'</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Serialize this instance</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>M.serialize = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">return</span> serializer.serializeModel(<span class="hljs-keyword">this</span>)
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>Imports</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Constants = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Constants'</span>)
+<span class="hljs-keyword">var</span> FieldTypes = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./FieldTypes'</span>)
+<span class="hljs-keyword">var</span> Errors = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Errors'</span>)
+<span class="hljs-keyword">var</span> Promise = <span class="hljs-built_in">require</span>(<span class="hljs-string">'bluebird'</span>)
+<span class="hljs-keyword">var</span> Finders = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Finders'</span>)
+<span class="hljs-keyword">var</span> PersistenceManager = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./PersistenceManager'</span>)
+<span class="hljs-keyword">var</span> ValidationManager = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./ValidationManager'</span>)
+<span class="hljs-keyword">var</span> serializer = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Serializer'</span>)
+<span class="hljs-keyword">var</span> utils = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Utils'</span>)
+<span class="hljs-keyword">var</span> _ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash'</span>)</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

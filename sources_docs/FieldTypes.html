@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>FieldTypes.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>FieldTypes.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/**
+ * Created by Dragos on 7/9/14.
+ *
+ * All data types we support in OGRE
+ */</span>
+
+<span class="hljs-keyword">var</span> Constants = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Constants'</span>)
+
+<span class="hljs-built_in">module</span>.exports = {
+
+	<span class="hljs-comment">/**
+	 * Integers, doubles, floats work seamlessly
+	 * */</span>
+	<span class="hljs-built_in">Number</span>: <span class="hljs-built_in">Number</span>,
+
+	<span class="hljs-comment">/**
+	 * Boolean
+	 * */</span>
+	<span class="hljs-built_in">Boolean</span>: <span class="hljs-built_in">Boolean</span>,
+
+	<span class="hljs-comment">/**
+	 * The bread and butter type
+	 * */</span>
+	<span class="hljs-built_in">String</span>: <span class="hljs-built_in">String</span>,
+
+	<span class="hljs-comment">/**
+	 * This type is for persisting complex javascript objects.
+	 * The engine serializes to string and deserializes from string,
+	 * making it transparent to the user.
+	 * */</span>
+	<span class="hljs-built_in">JSON</span>: <span class="hljs-built_in">JSON</span>,
+
+	<span class="hljs-comment">/**
+	 * Date or moment.js instance.
+	 * The engine persists a unix timestamp of the instance,
+	 * and reconstructs a Date object when getting data.
+	 * */</span>
+	<span class="hljs-built_in">Date</span>: <span class="hljs-built_in">Date</span>,
+
+	<span class="hljs-comment">/**
+	 * Array of primitives: strings or numbers. Unfortunately list elements
+	 * have to be of the same type (Neo4j limitation, or maybe Java limitation)
+	 * */</span>
+	<span class="hljs-built_in">Array</span>: <span class="hljs-built_in">Array</span>,
+
+	<span class="hljs-comment">/**
+	 * Singular relation between nodes. Sort of like one-to-one in RDBMS
+	 * */</span>
+	OneRelation: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(options)</span> </span>{
+		<span class="hljs-keyword">if</span> (!(options &amp;&amp; options.to)) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Invalid relation definition!'</span>)
+		<span class="hljs-keyword">this</span>.to = options.to
+		<span class="hljs-keyword">this</span>.relationType = options.relationType || <span class="hljs-string">'has'</span>
+		<span class="hljs-keyword">this</span>.direction = options.direction || Constants.Directions.Out
+	},
+
+	<span class="hljs-comment">/**
+	 * Multiple relations between nodes. Sort of like one-to-many in RDBMS
+	 * */</span>
+	ManyRelation: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(options)</span> </span>{
+		<span class="hljs-keyword">if</span> (!(options &amp;&amp; options.to)) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Invalid relation definition!'</span>)
+		<span class="hljs-keyword">this</span>.to = options.to
+		<span class="hljs-keyword">this</span>.relationType = options.relationType || <span class="hljs-string">'has'</span>
+		<span class="hljs-keyword">this</span>.direction = options.direction || Constants.Directions.Out
+	}
+}</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

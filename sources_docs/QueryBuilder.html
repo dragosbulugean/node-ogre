@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>QueryBuilder.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>QueryBuilder.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/**
+ * Created by Dragos on 5/19/14.
+ */</span>
+<span class="hljs-keyword">var</span> MapNameUtility = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MapNameUtility'</span>)
+<span class="hljs-keyword">var</span> _ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash'</span>)
+<span class="hljs-keyword">var</span> FieldTypes = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./FieldTypes'</span>)
+<span class="hljs-keyword">var</span> Constants = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Constants'</span>)
+<span class="hljs-keyword">var</span> Model = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Model'</span>)
+<span class="hljs-keyword">var</span> MapNameUtility = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MapNameUtility'</span>)
+<span class="hljs-keyword">var</span> names = <span class="hljs-keyword">new</span> MapNameUtility()
+<span class="hljs-keyword">var</span> utils = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Utils'</span>)
+<span class="hljs-keyword">var</span> StringGenerator = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./StringGenerator'</span>)
+<span class="hljs-keyword">var</span> sg = <span class="hljs-keyword">new</span> StringGenerator()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Constructor</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Neo4jQueryBuilder = <span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">this</span>._embedList = []
+	<span class="hljs-keyword">this</span>._selectList = []
+	<span class="hljs-keyword">this</span>._orderList = []
+	<span class="hljs-keyword">this</span>.whereClauses = []
+	<span class="hljs-keyword">this</span>.subWhereClauses = {}
+	<span class="hljs-keyword">this</span>.names = <span class="hljs-keyword">new</span> MapNameUtility()
+	<span class="hljs-keyword">this</span>.sg = <span class="hljs-keyword">new</span> StringGenerator()
+}
+
+<span class="hljs-keyword">var</span> NQB = Neo4jQueryBuilder.prototype
+
+NQB.model = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(model)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._model
+    <span class="hljs-keyword">this</span>._model = model
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.id = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(id)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._id
+	<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>._idArray) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'QueryBuilder needs to have either id or idArray. Both don`t work'</span>)
+	<span class="hljs-keyword">this</span>._id = id
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.idArray = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(idArray)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(idArray)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._idArray
+	<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>._id) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'QueryBuilder needs to have either id or idArray. Both don`t work'</span>)
+	<span class="hljs-keyword">this</span>._idArray = idArray
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.addWhere = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(clause, continuation)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(clause))
+		<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'You must supply a clause to the addWhere method.'</span>)
+	<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.whereClauses.length &gt;= <span class="hljs-number">1</span>) {
+		<span class="hljs-keyword">if</span>(continuation) clause.continuation = continuation
+		<span class="hljs-keyword">else</span> <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Supply AND or OR as a continuation after the first WHERE clause.'</span>)
+	}
+	<span class="hljs-keyword">if</span>(clause.op &amp;&amp; clause.args) clause = utils.transformClauseFromOldSyntax(clause)
+	utils.checkClause(clause)
+	clause.continuation = continuation
+	<span class="hljs-keyword">this</span>.whereClauses.push(clause)
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.addSubWhere = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, clause, continuation)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(model) || _.isUndefined(clause))
+		<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'You must supply a model and clause to the addWhere method.'</span>)
+	<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.subWhereClauses.length &gt;= <span class="hljs-number">1</span>) {
+		<span class="hljs-keyword">if</span>(continuation) clause.continuation = continuation
+		<span class="hljs-keyword">else</span> <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Supply AND or OR as a continuation after the first SUBWHERE clause.'</span>)
+	}
+	<span class="hljs-keyword">if</span>(clause.op &amp;&amp; clause.args) clause = utils.transformClauseFromOldSyntax(clause)
+	utils.checkClause(clause)
+	<span class="hljs-keyword">if</span>(!<span class="hljs-keyword">this</span>.subWhereClauses[model])
+		<span class="hljs-keyword">this</span>.subWhereClauses[model] = []
+	<span class="hljs-keyword">this</span>.subWhereClauses[model].push(clause)
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.embedList = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(embedList)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(embedList)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._embedList
+	<span class="hljs-keyword">this</span>._embedList = embedList
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.addEmbedProperty = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(prop)</span> </span>{
+    <span class="hljs-keyword">if</span>(prop <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>) {
+        <span class="hljs-keyword">this</span>._embedList = _.union(<span class="hljs-keyword">this</span>._embedList, prop)
+    } <span class="hljs-keyword">else</span> {
+		<span class="hljs-keyword">if</span>(!_.contains(<span class="hljs-keyword">this</span>._embedList,prop)) <span class="hljs-keyword">this</span>._embedList.push(prop)
+    }
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.addSelectProperty = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(prop)</span> </span>{
+	<span class="hljs-keyword">if</span>(prop <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>) {
+		<span class="hljs-keyword">this</span>._selectList = _.union(<span class="hljs-keyword">this</span>._selectList, prop)
+	} <span class="hljs-keyword">else</span> {
+		<span class="hljs-keyword">if</span>(!_.contains(<span class="hljs-keyword">this</span>._selectList,prop)) <span class="hljs-keyword">this</span>._selectList.push(prop)
+	}
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.selectList = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(selectList)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(selectList)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._selectList
+	<span class="hljs-keyword">this</span>._selectList = selectList
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.addOrderBy = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(orderBy)</span> </span>{
+	<span class="hljs-keyword">if</span>(!orderBy.field || !orderBy.direction) {
+		<span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Order by should have field and direction.'</span>)
+	}
+	<span class="hljs-keyword">this</span>._orderList.push(orderBy)
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.orderList = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(orderList)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(orderList)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._orderList
+	<span class="hljs-keyword">this</span>._orderList = orderList
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.skip = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(skip)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(skip)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._skip
+    <span class="hljs-keyword">this</span>._skip = skip
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.limit = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(limit)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(limit)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._limit
+    <span class="hljs-keyword">this</span>._limit = limit
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}
+
+NQB.isCount = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(isCount)</span> </span>{
+	<span class="hljs-keyword">if</span>(_.isUndefined(isCount)) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._isCount
+	<span class="hljs-keyword">this</span>._isCount = isCount
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>INITIAL PHASE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> initialPhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">var</span> query = <span class="hljs-keyword">this</span>.sg.getMatch(<span class="hljs-keyword">this</span>.model().label, names.setGetNextMapName())
+	<span class="hljs-keyword">return</span> [query]
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>FILTER PHASE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> filterPhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">var</span> query = []
+	<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>._id) {
+		query.push(sg.getWhereId(names.getCurrentMapName(), <span class="hljs-keyword">this</span>._id))
+	} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>._idArray) {
+		query.push(<span class="hljs-string">'WHERE id('</span> + names.getCurrentMapName() + <span class="hljs-string">') IN ['</span>+ <span class="hljs-keyword">this</span>._idArray +<span class="hljs-string">']'</span>)
+	} <span class="hljs-keyword">else</span> {
+		<span class="hljs-keyword">var</span> wheres = []
+		_.each(<span class="hljs-keyword">this</span>.whereClauses, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(clause)</span></span>{
+			wheres.push(sg.getWhere(names.getCurrentMapName(), Constants.Operators[clause.operator], clause.field, clause.value, clause.continuation) + <span class="hljs-string">''</span>)
+		})
+		<span class="hljs-keyword">if</span>(!_.isEmpty(wheres)) {
+			wheres = wheres.join(<span class="hljs-string">' '</span>)
+			query.push(wheres)
+		}
+	}
+	<span class="hljs-keyword">return</span> query
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>ORDER PHASE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> orderPhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">var</span> query = []
+	<span class="hljs-keyword">return</span> query
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>SELECT PHASE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> selectPhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">var</span> query = <span class="hljs-keyword">this</span>.sg.getWith(names.getAllUsedMapNames(), names.getCurrentMapName(),
+										     names.setGetNextMapName(), <span class="hljs-keyword">this</span>.model().getPrimitiveFields(),
+										     <span class="hljs-keyword">this</span>.selectList())
+	<span class="hljs-keyword">return</span> [query]
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>EMBED PHASE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> embedPhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">var</span> query = []
+
+	<span class="hljs-keyword">var</span> embedToQuery = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v)</span> </span>{
+		<span class="hljs-keyword">var</span> definition = <span class="hljs-keyword">this</span>.model().definition[v]
+
+		<span class="hljs-keyword">var</span> query = []
+
+		<span class="hljs-keyword">var</span> selectList = []
+		<span class="hljs-keyword">if</span>(_.contains(<span class="hljs-keyword">this</span>.embedList(), v)) {
+			selectList = selectList.concat(definition.type.to.getPrimitiveFields())
+		} <span class="hljs-keyword">else</span> {
+			selectList.push(<span class="hljs-string">'id'</span>)
+		}
+
+		<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.subWhereClauses[v]) {
+			query.push(<span class="hljs-keyword">this</span>.sg.getRelationMatch(<span class="hljs-string">'m_0'</span>, names.setGetNextRelationMapName(), <span class="hljs-keyword">this</span>.model().label, definition))
+			<span class="hljs-keyword">var</span> subWheres = []
+			_.each(<span class="hljs-keyword">this</span>.subWhereClauses[v], <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(clause)</span></span>{
+				subWheres.push(<span class="hljs-keyword">this</span>.sg.getWhere(names.getCurrentRelationMapName(), Constants.Operators[clause.operator], clause.field, clause.value, clause.continuation))
+			}, <span class="hljs-keyword">this</span>)
+			query.push(subWheres.join(<span class="hljs-string">' '</span>))
+		} <span class="hljs-keyword">else</span> {
+			query.push(<span class="hljs-keyword">this</span>.sg.getOptionalRelationMatch(<span class="hljs-string">'m_0'</span>, names.setGetNextRelationMapName(), <span class="hljs-keyword">this</span>.model().label, definition))
+		}
+
+		<span class="hljs-keyword">if</span>(definition.type <span class="hljs-keyword">instanceof</span> FieldTypes.OneRelation) {
+			<span class="hljs-keyword">var</span> relationNames = _.map(<span class="hljs-keyword">this</span>.sg.relationMap, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v,k)</span></span>{
+				<span class="hljs-keyword">return</span> v
+			})
+			query.push(<span class="hljs-string">'WITH '</span> + _.union(names.getMapNames(), relationNames).join(<span class="hljs-string">','</span>) + <span class="hljs-string">',{'</span> + <span class="hljs-keyword">this</span>.sg.getMap(names.getCurrentRelationMapName(), definition.type.to.getPrimitiveFields(), selectList, <span class="hljs-literal">false</span>) + <span class="hljs-string">'} AS '</span> +
+					names.setGetNextRelationMapName() + <span class="hljs-string">' '</span>)
+			<span class="hljs-keyword">this</span>.sg.relationMap[v] = names.getCurrentRelationMapName()
+		}
+		<span class="hljs-keyword">if</span>(definition.type <span class="hljs-keyword">instanceof</span> FieldTypes.ManyRelation) {
+			<span class="hljs-keyword">var</span> relationNames = _.map(<span class="hljs-keyword">this</span>.sg.relationMap, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v,k)</span></span>{
+				<span class="hljs-keyword">return</span> v
+			})
+			query.push(<span class="hljs-string">'WITH '</span> + _.union(names.getMapNames(), relationNames).join(<span class="hljs-string">','</span>) + <span class="hljs-string">',COLLECT(DISTINCT '</span> + <span class="hljs-string">'{'</span> + <span class="hljs-keyword">this</span>.sg.getMap(names.getCurrentRelationMapName(), definition.type.to.getPrimitiveFields(), selectList, <span class="hljs-literal">false</span>) + <span class="hljs-string">'}'</span>
+				   + <span class="hljs-string">') AS '</span> + names.setGetNextRelationMapName() + <span class="hljs-string">' '</span>)
+			<span class="hljs-keyword">this</span>.sg.relationMap[v] = names.getCurrentRelationMapName()
+		}
+		<span class="hljs-keyword">return</span> query.join(<span class="hljs-string">'\n'</span>)
+	}
+
+	_.each(<span class="hljs-keyword">this</span>.model().getRelationFields(), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(field)</span></span>{
+		query.push(embedToQuery.call(<span class="hljs-keyword">this</span>, field))
+	}, <span class="hljs-keyword">this</span>)
+
+	<span class="hljs-keyword">return</span> query
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>RANGE PHASE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> rangePhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">var</span> query = []
+	<span class="hljs-keyword">var</span> str = <span class="hljs-keyword">this</span>.sg.getRange(<span class="hljs-keyword">this</span>.skip(), <span class="hljs-keyword">this</span>.limit())
+	<span class="hljs-keyword">if</span>(str) query.push(str)
+	<span class="hljs-keyword">return</span> query
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>RETURN PHASE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> returnPhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	<span class="hljs-keyword">var</span> query = <span class="hljs-keyword">this</span>.sg.getReturn(names.getCurrentMapName(), <span class="hljs-keyword">this</span>.model().getPrimitiveFields(),
+											  <span class="hljs-keyword">this</span>.selectList())
+	<span class="hljs-keyword">return</span> [query]
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Default phases</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>NQB.phases = {
+	initialPhase:   initialPhase,
+	filterPhase:    filterPhase,
+	orderPhase:     orderPhase,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>selectPhase:  selectPhase,</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	embedPhase:     embedPhase,
+	returnPhase:    returnPhase,
+	rangePhase:     rangePhase
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Replace a phase with another one</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>NQB.replacePhase = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(phaseName, phaseFunction)</span> </span>{
+	<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.phases.hasOwnProperty(phaseName)) {
+		<span class="hljs-keyword">this</span>.phases[phaseName] = phaseFunction
+	}
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Get query from QueryBuilder</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>NQB.getQuery = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+	names.reset()
+    <span class="hljs-keyword">var</span> query = []
+    <span class="hljs-keyword">if</span>(!<span class="hljs-keyword">this</span>.model()) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'QueryBuilder needs a Model to construct query!'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>in case of count</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._isCount) {
+		query.push(<span class="hljs-keyword">this</span>.phases.initialPhase.call(<span class="hljs-keyword">this</span>))
+		query.push(<span class="hljs-keyword">this</span>.phases.filterPhase.call(<span class="hljs-keyword">this</span>))
+		query.push(sg.getCount(names.getCurrentMapName()))
+		<span class="hljs-keyword">return</span> query.join(<span class="hljs-string">' '</span>)
+	}
+	<span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> phase <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.phases) {
+		<span class="hljs-keyword">var</span> currentQueryPart = <span class="hljs-keyword">this</span>.phases[phase].call(<span class="hljs-keyword">this</span>)
+		<span class="hljs-keyword">if</span>(!_.isEmpty(currentQueryPart)) {
+			query = _.union(query, currentQueryPart)
+		}
+	}
+	query = query.join(<span class="hljs-string">' \n'</span>)
+    <span class="hljs-keyword">return</span> query
+}</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
