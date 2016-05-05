@@ -17,4 +17,4 @@ All interaction with the OGRE and throughout OGRE is made in the async evented s
 but Promises are used rather than callbacks, as they are easier to handle/read.
 
 Read the tutorial to get a general feel of the workflow introduced by OGRE here:
-[Tutorial](https://github.com/Kalon/node-ogre/blob/master/tutorial.md)
+[Tutorial](https://github.com/dragosbulugean/node-ogre/blob/master/tutorial.md)
