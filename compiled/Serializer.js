@@ -19,6 +19,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * Created by Dragos on 6/30/14.
  */
 
+
 var serializeModel = function serializeModel(model) {
 	if (!model) return;
 	if (model.data) model = model.data;

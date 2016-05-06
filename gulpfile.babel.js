@@ -25,17 +25,17 @@ gulp.task('babel', () => {
 })
 
 //This task requires Neo4j server running
-gulp.task('tests', ['babel'], () => {
+gulp.task('test', () => {
 	return gulp.src(paths.tests, {read: false})
 		         .pipe(mocha({reporter: 'spec'}))
 })
 
-gulp.task('unit_tests', () => {
+gulp.task('unit_test', () => {
 	return gulp.src([paths.tests[0]], {read: false})
 		         .pipe(mocha({reporter: 'spec'}))
 })
 
-gulp.task('integration_tests', () => {
+gulp.task('integration_test', () => {
 	return gulp.src([paths.tests[1]], {read: false})
 		         .pipe(mocha({reporter: 'spec'}))
 })

@@ -2,75 +2,75 @@
  * Created by Dragos on 7/3/14.
  */
 
-var chai = require("chai")
-var should = chai.should()
-var expect = chai.expect
-var	assert = chai.assert
+import chai from 'chai'
+let should = chai.should()
+let expect = chai.expect
+let	assert = chai.assert
 
-var MapNameUtility = require("../../compiled/MapNameUtility").default
+import MapNameUtility from '../../sources/MapNameUtility'
 
-describe('MapNameUtility', function(){
-	var mnu = new MapNameUtility()
-	describe('#constructor', function(){
-		it('should be able to create an instance', function(){
+describe('MapNameUtility', () => {
+	let mnu = new MapNameUtility()
+	describe('#constructor', () => {
+		it('should be able to create an instance', () => {
 			assert.typeOf(mnu, 'object')
 		})
 	})
-	describe('#getCurrentMapName', function(){
-		it('should get undefined on first call', function(){
+	describe('#getCurrentMapName', () => {
+		it('should get undefined on first call', () => {
 			should.not.exist(mnu.getCurrentMapName())
 		})
 	})
-	describe('#setGetNextMapName', function(){
-		it('should get m_0 on first call to setGetNextMapName', function(){
+	describe('#setGetNextMapName', () => {
+		it('should get m_0 on first call to setGetNextMapName', () => {
 			assert.equal(mnu.setGetNextMapName(), 'm_0')
 		})
-		it('should increase counter on map name when calling setGetNextMapName', function(){
+		it('should increase counter on map name when calling setGetNextMapName', () => {
 			assert.equal(mnu.setGetNextMapName(), 'm_1')
 			assert.equal(mnu.getCurrentMapName(), 'm_1')
 		})
 	})
-	describe('#getLastMapName', function(){
-		it('should get last map name without messing with the currentMapName', function(){
+	describe('#getLastMapName', () => {
+		it('should get last map name without messing with the currentMapName', () => {
 			assert.equal(mnu.getLastMapName(), 'm_0')
 			assert.equal(mnu.getCurrentMapName(), 'm_1')
 		})
 	})
-	describe('#getNextMapName', function(){
-		it('should get next map name without messing with the currentMapName', function(){
+	describe('#getNextMapName', () => {
+		it('should get next map name without messing with the currentMapName', () => {
 			assert.equal(mnu.getNextMapName(), 'm_2')
 			assert.equal(mnu.getCurrentMapName(), 'm_1')
 		})
 	})
-	describe('#getCurrentRelationMapName', function(){
-		it('should get undefined on first call', function(){
+	describe('#getCurrentRelationMapName', () => {
+		it('should get undefined on first call', () => {
 			should.not.exist(mnu.getCurrentRelationMapName())
 		})
 	})
-	describe('#setGetNextRelationMapName', function(){
-		it('should m_0 without tampering with currentRelationMap value', function(){
+	describe('#setGetNextRelationMapName', () => {
+		it('should m_0 without tampering with currentRelationMap value', () => {
 			assert.equal(mnu.setGetNextRelationMapName(), 'rm_0')
 			assert.equal(mnu.getCurrentRelationMapName(), 'rm_0')
 		})
 	})
-	describe('#getMapNames', function(){
-		it('should get previous used map names', function(){
+	describe('#getMapNames', () => {
+		it('should get previous used map names', () => {
 			mnu.setGetNextMapName()
 			mnu.setGetNextMapName()
 			mnu.setGetNextMapName()
 			expect(mnu.getMapNames()).to.eql(['m_4', 'm_3', 'm_2', 'm_1', 'm_0'])
 		})
 	})
-	describe('#getRelationMapNames', function(){
-		it('should get previous used relation map names', function(){
+	describe('#getRelationMapNames', () => {
+		it('should get previous used relation map names', () => {
 			mnu.setGetNextRelationMapName()
 			mnu.setGetNextRelationMapName()
 			mnu.setGetNextRelationMapName()
 			expect(mnu.getRelationMapNames()).to.eql(['rm_3', 'rm_2', 'rm_1', 'rm_0'])
 		})
 	})
-	describe('#getAllUsedMapNames', function(){
-		it('should get all previous map names', function(){
+	describe('#getAllUsedMapNames', () => {
+		it('should get all previous map names', () => {
 			mnu.setGetNextRelationMapName()
 			mnu.setGetNextRelationMapName()
 			mnu.setGetNextRelationMapName()

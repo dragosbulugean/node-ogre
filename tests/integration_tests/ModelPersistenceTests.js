@@ -2,36 +2,33 @@
  * Created by Dragos on 5/20/14.
  */
 
-var chai = require("chai")
-var should = chai.should()
-var expect = chai.expect
-var	assert = chai.assert
+import chai from 'chai'
+let should = chai.should()
+let expect = chai.expect
+let	assert = chai.assert
 
-var Promise = require('bluebird')
+import Promise from 'bluebird'
 Promise.longStackTraces()
-var _ = require('lodash')
-var Person = require('../setup/testModels').Person
-var Errors = require('../../compiled/Errors')
-var Role = require('../setup/testModels').Role
-var Location = require('../setup/testModels').Location
-var worker = require('../setup/worker')
-var Constants = require('../../compiled/Constants')
+import _ from 'lodash'
+import Constants from '../../sources/Constants'
 
-describe('Model [Persistence]', function(){
-	this.timeout(0)
-	before(function(){
+import { Person, Role, Location } from '../setup/testModels'
+import * as worker from '../setup/worker'
+
+describe('Model [Persistence]', () => {
+	before(() => {
 		return worker.work()
 	})
-	after(function(){
+	after(() => {
 		//return worker.undoWork()
 	})
-	describe('#save', function(){
-		it('saves model properties and all related models', function(done){
+	describe('#save', () => {
+		it('saves model properties and all related models', (done) => {
 			Person.findAll()
-				.then(function(people){
-					_.each(people, function(person){
+				.then((people) => {
+					_.each(people, (person) => {
 						person.should.have.property('locations').with.lengthOf(worker.locationsNumber)
-						_.each(person.locations, function(location){
+						_.each(person.locations, (location) => {
 							location.should.be.an('number')
 						})
 						person.isActive.should.be.an('boolean').and.be.eql(true)
@@ -45,25 +42,25 @@ describe('Model [Persistence]', function(){
 					done()
 				})
 		})
-		it('updates model relations', function(done){
+		it('updates model relations', (done) => {
 			Person.findRandom(1, null, ['role', 'locations'])
-				.then(function(people){
-					var person = _.head(people)
-					var newFirstName = 'Elon'
-					var newLastName = null
+				.then((people) => {
+					let person = _.head(people)
+					let newFirstName = 'Elon'
+					let newLastName = null
 					person.firstName = newFirstName
 					person.lastName = newLastName
-					var newRoleDesc = 'xxxxx'
+					let newRoleDesc = 'xxxxx'
 					person.role = Role.instantiate({description: newRoleDesc})
 					person.locations = []
-					var locationsNr = 10
-					_.each(_.range(locationsNr), function(v){
+					let locationsNr = 10
+					_.each(_.range(locationsNr), (v) => {
 						person.locations.push(Location.instantiate({coord:"location"+v}))
 					})
 					person.save()
-						.then(function(psaved){
+						.then((psaved) => {
 							Person.findById(person.id, null, ['role', 'locations'])
-								.then(function(p){
+								.then((p) => {
 									p.firstName.should.be.eql(newFirstName)
 									should.equal(p.lastName, null)
 									p.should.have.property('locations').with.lengthOf(locationsNr)
@@ -74,13 +71,13 @@ describe('Model [Persistence]', function(){
 				})
 		})
 	})
-	describe('#remove', function(){
-		it('soft removes model in datastore', function(done){
+	describe('#remove', () => {
+		it('soft removes model in datastore', (done) => {
 			Person.instantiate({firstName: 'Billy', lastName:'Boy'}).save()
-				.then(function(person){
+				.then((person) => {
 					person.remove()
-						.then(function(){
-							Person.seraph().readLabels(person.id, function(err, p){
+						.then(() => {
+							Person.seraph().readLabels(person.id, (err, p) => {
 								p[0].should.be.eql("_"+person.label)
 								done()
 							})
@@ -88,59 +85,65 @@ describe('Model [Persistence]', function(){
 				})
 		})
 	})
-	describe('#hardRemove', function(){
-		it('hard removes model from datastore', function(done){
+	describe('#hardRemove', () => {
+		it('hard removes model from datastore', (done) => {
 			Person.instantiate({firstName: 'Billy', lastName:'Boy'}).save()
-				.then(function(person){
+				.then((person) => {
 					person.hardRemove()
-						.then(function(){
+						.then(() => {
 							Person.findById(person.id)
-								.then(function(n){
-									return
+								.then((n) => {
+									return done()
 								})
-								.catch(function(err){
+								.catch((err) => {
 									return done()
 								})
 						})
+						.catch((err) => {
+							return done()
+						})
+				})
+				.catch((err) => {
+					return done()
 				})
 		})
 	})
-	describe('#update', function(){
-		it('saves model properties', function(done) {
-			var personData = {
+	describe('#update', () => {
+		it('saves model properties', (done) => {
+			let personData = {
 				firstName: 'Johnny',
 				lastName: 'Cash'
 			}
 			Person.instantiate(personData).save()
-				.then(function(p){
+				.then((p) => {
 					Person.findById(p.id)
-						.then(function(person){
+						.then((person) => {
 							person.firstName.should.be.eql(personData.firstName)
 							person.lastName.should.be.eql(personData.lastName)
 							done()
 						})
 				})
 		})
-		it('updates model properties', function (done) {
+		it('updates model properties', (done) => {
 			Person.findRandom(1)
-				.then(function (people) {
-					var person = _.head(people)
-					var newFirstName = 'Elon'
-					var newLastName = null
+				.then((people) => {
+					let person = _.head(people)
+					let newFirstName = 'Elon'
+					let newLastName = null
 					person.firstName = newFirstName
 					person.lastName = newLastName
 					person.isActive = null
 					person.save()
-						.then(function () {
+						.then(() => {
 							Person.findById(person.id)
-								.then(function (p) {
+								.then((p) => {
 									p.firstName.should.be.eql(newFirstName)
 									should.equal(p.lastName, null)
 									should.equal(p.isActive, null)
 									done()
 								})
 						})
-						.catch(function (err) {
+						.catch((err) => {
 							console.log(err)
 						})
 				})

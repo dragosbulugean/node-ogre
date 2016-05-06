@@ -2,19 +2,19 @@
  * Created by Dragos on 3/12/15.
  */
 
-var chai = require("chai")
-var should = chai.should()
-var expect = chai.expect
-var	assert = chai.assert
+import chai from 'chai'
+let should = chai.should()
+let expect = chai.expect
+let	assert = chai.assert
 
-var Model = require("../../compiled/Model")
-var FieldTypes = require("../../compiled/FieldTypes")
-var ValidationManager = require("../../compiled/ValidationManager")
+import Model from '../../sources/Model'
+import FieldTypes from '../../sources/FieldTypes'
+import ValidationManager from '../../sources/ValidationManager'
 
-describe('ValidationManager', function(){
-	describe('#validateType', function(){
-		it('should be able to detect wrong types', function(){
-/*			var result
+describe('ValidationManager', () => {
+	describe('#validateType', () => {
+		it('should be able to detect wrong types', () => {
+/*			let result
 			result = ValidationManager.validateType(String, "x")
 			should.not.exist(result)
 			result = ValidationManager.validateType(String, new Date())

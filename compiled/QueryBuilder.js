@@ -1,12 +1,13 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * Created by Dragos on 5/19/14.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 
 var _MapNameUtility = require('./MapNameUtility');
 
@@ -150,7 +151,7 @@ var Neo4jQueryBuilder = function () {
       if (!_orderBy.fields || !_orderBy.direction) {
         throw Error('Order by should have field/fields and direction.');
       }
-      var fields = undefined;
+      var fields = void 0;
       this._orderBy = _orderBy;
       return this;
     }
@@ -181,6 +182,7 @@ var Neo4jQueryBuilder = function () {
 }();
 
 //INITIAL PHASE
+
 
 var initialPhase = function initialPhase() {
   var query = this.sg.getMatch(this.model().label, names.setGetNextMapName());
@@ -250,10 +252,10 @@ var embedPhase = function embedPhase() {
       this.sg.relationMap[v] = names.getCurrentRelationMapName();
     }
     if (definition.type instanceof _FieldTypes2.default.ManyRelation) {
-      var relationNames = _lodash2.default.map(this.sg.relationMap, function (v, k) {
+      var _relationNames = _lodash2.default.map(this.sg.relationMap, function (v, k) {
         return v;
       });
-      query.push('WITH ' + _lodash2.default.union(names.getMapNames(), relationNames).join(',') + ',COLLECT(DISTINCT ' + '{' + this.sg.getMap(names.getCurrentRelationMapName(), definition.type.to.getPrimitiveFields(), selectList, false) + '}' + ') AS ' + names.setGetNextRelationMapName() + ' ');
+      query.push('WITH ' + _lodash2.default.union(names.getMapNames(), _relationNames).join(',') + ',COLLECT(DISTINCT ' + '{' + this.sg.getMap(names.getCurrentRelationMapName(), definition.type.to.getPrimitiveFields(), selectList, false) + '}' + ') AS ' + names.setGetNextRelationMapName() + ' ');
       this.sg.relationMap[v] = names.getCurrentRelationMapName();
     }
     return query.join('\n');

@@ -2,10 +2,10 @@
  * Created by Dragos on 8/14/14.
  */
 
-var Model = require('../../compiled/Model').default
-var FieldTypes = require('../../compiled/FieldTypes').default
+import Model from '../../sources/Model'
+import FieldTypes from '../../sources/FieldTypes'
 
-var Person = new Model('Person', {
+let Person = new Model('Person', {
 	id: {
 		type: Number
 	},
@@ -56,7 +56,7 @@ var Person = new Model('Person', {
 	}
 })
 
-var Role = new Model('Role', {
+let Role = new Model('Role', {
 	id: {
 		type: Number
 	},
@@ -65,7 +65,7 @@ var Role = new Model('Role', {
 	}
 })
 
-var Car = new Model('Car', {
+let Car = new Model('Car', {
 	id: {
 		type: Number
 	},
@@ -74,7 +74,7 @@ var Car = new Model('Car', {
 	}
 })
 
-var Location = new Model('Location', {
+let Location = new Model('Location', {
 	id: {
 		type: Number
 	},
@@ -83,7 +83,7 @@ var Location = new Model('Location', {
 	}
 })
 
-var Toy = new Model('Toy', {
+let Toy = new Model('Toy', {
 	id: {
 		type: Number
 	},
@@ -92,10 +92,4 @@ var Toy = new Model('Toy', {
 	}
 })
 
-module.exports = {
-	Person: Person,
-	Role: Role,
-	Location: Location,
-	Toy: Toy,
-	Car: Car
-}
+export { Person, Role, Location, Toy, Car }

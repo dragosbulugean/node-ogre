@@ -2,26 +2,26 @@
  * Created by Dragos on 3/12/15.
  */
 
-var chai = require("chai")
-var should = chai.should()
-var expect = chai.expect
-var	assert = chai.assert
+import chai from 'chai'
+let should = chai.should()
+let expect = chai.expect
+let	assert = chai.assert
 
-var _ = require('lodash')
-var Model = require("../../compiled/Model")
-var FieldTypes = require("../../compiled/FieldTypes")
-var Bootstrapper = require("../../compiled/Bootstrapper").default
+import _ from 'lodash'
+import Model from '../../sources/Model'
+import FieldTypes from '../../sources/FieldTypes'
+import Bootstrapper from '../../sources/Bootstrapper'
 
-var testModels = require('../setup/testModels')
-var modelArray = []
-_.each(testModels, function(v,k){
+import * as testModels from '../setup/testModels'
+let modelArray = []
+_.each(testModels, (v,k) => {
 	modelArray.push(v)
 })
 
-describe('Bootstrapper', function(){
-	describe('#models', function(){
-		it('should be able to add models', function(){
-			var bs = new Bootstrapper()
+describe('Bootstrapper', () => {
+	describe('#models', () => {
+		it('should be able to add models', () => {
+			let bs = new Bootstrapper()
 			bs.models(modelArray)
 			bs.models().should.be.eql(modelArray)
 		})

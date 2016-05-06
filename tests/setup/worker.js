@@ -2,22 +2,19 @@
  * Created by Dragos on 5/20/14.
  */
 
-var Promise = require('bluebird')
-var Bootstrapper = require('../../compiled/Bootstrapper').default
+let Promise = require('bluebird')
 Promise.longStackTraces()
 
-var QueryBuilder = require('../../compiled/QueryBuilder')
-var FieldTypes = require('../../compiled/FieldTypes')
-var _ = require('lodash')
-var moment = require('moment')
-var Person = require('./testModels').Person
-var Role = require('./testModels').Role
-var Location = require('./testModels').Location
-var Toy = require('./testModels').Toy
-var Car = require('./testModels').Car
-var bs = new Bootstrapper([Person, Role, Location, Toy, Car])
+import Bootstrapper from '../../sources/Bootstrapper'
+import QueryBuilder from '../../sources/QueryBuilder'
+import FieldTypes from '../../sources/FieldTypes'
+import _ from 'lodash'
+import moment from 'moment'
 
-var db = {
+import {Person, Role, Location, Toy, Car} from './testModels'
+let bs = new Bootstrapper([Person, Role, Location, Toy, Car])
+
+let db = {
 	server: "http://localhost:7474",
 	user: "neo4j",
 	pass: "neo4j1"
@@ -25,23 +22,20 @@ var db = {
 
 bs.db(db).initialize()
 
-var peopleNumber = 5
-var locationsNumber = 3
-var toysNumber = 10
-var date = new Date()
-var preferredColors = ['black','yellow','white']
-var resetDbQuery = 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r'
+let peopleNumber = 5
+let locationsNumber = 3
+let toysNumber = 10
+let date = new Date()
+let preferredColors = ['black','yellow','white']
+let resetDbQuery = 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r'
 
-var work = function() {
-	var deferred = Promise.defer()
-	Person.seraph().query(resetDbQuery, {}, function(err, result){
-			var promises = []
-
-			var people = []
-
-			for(var i = 0; i<peopleNumber; i++) {
-
-				var person = Person.instantiate()
+let work = () => {
+	let deferred = Promise.defer()
+	Person.seraph().query(resetDbQuery, {}, (err, result) => {
+			let promises = []
+			let people = []
+			for(let i = 0; i<peopleNumber; i++) {
+				let person = Person.instantiate()
 				person.firstName = 'Henry_'+i
 				person.lastName = 'Ford_'+i
 				person.isActive = true
@@ -49,18 +43,18 @@ var work = function() {
 				person.jsonData = {x:1,y:2}
 				person.preferredColors = preferredColors
 				person.bornDate = date
-				var role = Role.instantiate()
+				let role = Role.instantiate()
 				role.description = 'vip_role_'+i
 				person.role = role
-				var car = Car.instantiate({name: 'Honda_'+i})
+				let car = Car.instantiate({name: 'Honda_'+i})
 				person.car = car
-				_.each(_.range(0,locationsNumber), function(i){
-					var l = Location.instantiate()
+				_.each(_.range(0,locationsNumber), (i) => {
+					let l = Location.instantiate()
 					l.coord = 'USA_'+i
 					person.locations.push(l)
 				})
-				_.each(_.range(0,toysNumber), function(i){
-					var t = Toy.instantiate()
+				_.each(_.range(0,toysNumber), (i) => {
+					let t = Toy.instantiate()
 					t.name = 'toy_'+i
 					person.toys.push(t)
 				})
@@ -69,34 +63,26 @@ var work = function() {
 			}
 
 			Promise.all(promises)
-				.then(function(){
+				.then(() => {
 					return deferred.resolve()
 				})
-				.catch(function(err){
+				.catch((err) => {
 					return deferred.reject(err)
 				})
 		})
 	return deferred.promise
 }
 
-var undoWork = function() {
-	var deferred = Promise.defer()
+let undoWork = () => {
+	let deferred = Promise.defer()
 	db.queryOneScalarAsync(resetDbQuery, {})
-		.then(function(){
+		.then(() => {
 			deferred.resolve()
 		})
-		.catch(function(err){
+		.catch((err) => {
 			deferred.reject(err)
 		})
 	return deferred.promise
 }
 
-module.exports = {
-	work: work,
-	undoWork: undoWork,
-	peopleNumber: peopleNumber,
-	locationsNumber: locationsNumber,
-	toysNumber: toysNumber,
-	preferredColors: preferredColors,
-	date: date
-}
+export { work, undoWork, peopleNumber, locationsNumber, toysNumber, preferredColors, date }

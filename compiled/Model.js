@@ -1,12 +1,12 @@
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by Dragos on 5/20/14
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by Dragos on 5/20/14
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 
 var _Constants = require('./Constants');
 
@@ -137,8 +137,8 @@ var Model = function () {
 			Object.defineProperties(instance, properties);
 
 			for (var def in instance.definition) {
-				var definition = instance.definition[def];
-				if (definition.type instanceof _FieldTypes2.default.ManyRelation) instance.data[def] = [];
+				var _definition2 = instance.definition[def];
+				if (_definition2.type instanceof _FieldTypes2.default.ManyRelation) instance.data[def] = [];
 			}
 			return instance;
 		}
