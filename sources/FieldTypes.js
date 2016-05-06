@@ -32,19 +32,23 @@ let FieldTypes = {
 	Array: Array,
 
 	//Singular relation between nodes. Sort of like one-to-one in RDBMS
-	OneRelation: function (options) {
-		if (!(options && options.to)) throw Error('Invalid relation definition!')
-		this.to = options.to
-		this.relationType = options.relationType || 'has'
-		this.direction = options.direction || Constants.Directions.Out
+	OneRelation: class OneRelation {
+		constructor(options) {
+			if (!(options && options.to)) throw Error('Invalid relation definition!')
+			this.to = options.to
+			this.relationType = options.relationType || 'has'
+			this.direction = options.direction || Constants.Directions.Out
+		}
 	},
 
 	//Multiple relations between nodes. Sort of like one-to-many in RDBMS
-	ManyRelation: function (options) {
-		if (!(options && options.to)) throw Error('Invalid relation definition!')
-		this.to = options.to
-		this.relationType = options.relationType || 'has'
-		this.direction = options.direction || Constants.Directions.Out
+	ManyRelation: class ManyRelation {
+		constructor(options) {
+			if (!(options && options.to)) throw Error('Invalid relation definition!')
+			this.to = options.to
+			this.relationType = options.relationType || 'has'
+			this.direction = options.direction || Constants.Directions.Out
+		}
 	}
 }
 

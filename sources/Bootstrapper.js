@@ -59,7 +59,7 @@ class Bootstrapper {
 					if(definition.type instanceof FieldTypes.OneRelation ||
 						definition.type instanceof FieldTypes.ManyRelation) {
 						let modelExists = false
-						this._models.forEach(function(submodel) {
+						this._models.forEach((submodel) => {
 							if(definition.type.to === submodel ||
 								definition.type.to === submodel.label ) {
 								modelExists = true

@@ -9,13 +9,13 @@ import Model from './Model'
 
 //Get & Set wrappers to fix scoping issues caused by defining properties
 let wrapSet = (instance, definition) => {
-	return function (newValue){
+	return (newValue) => {
 		instance.set(definition, newValue)
 	}
 }
 
 let wrapGet = (instance, definition) => {
-	return function (){
+	return () => {
 		return instance.get(definition)
 	}
 }
@@ -24,7 +24,7 @@ let wrapGet = (instance, definition) => {
 let executeSingle = (model, query) => {
 	let deferred = Promise.defer()
 	model.seraph().queryAsync(query, {})
-		.then(function(result){
+		.then((result) => {
 			if(!result || _.isEmpty(result)) {
 				return deferred.reject(Error('Node not found!'))
 			}
@@ -32,7 +32,7 @@ let executeSingle = (model, query) => {
 			modelInstance.isSyncronised = true
 			return deferred.resolve(modelInstance)
 		})
-		.catch(function(err){
+		.catch((err) => {
 			return deferred.reject(`Query: ${query} ${err}`)
 		})
 	return deferred.promise
@@ -42,9 +42,9 @@ let executeSingle = (model, query) => {
 let executeMany = (model, query) => {
 	let deferred = Promise.defer()
 	model.seraph().queryAsync(query, {})
-		.then(function(result){
+		.then((result) => {
 			let models = []
-			result.forEach(function(data){
+			result.forEach((data) => {
 				//TODO solve this in neo4j-cypher
 				if(data.metadata) {
 					let id = data.metadata.id
@@ -57,7 +57,7 @@ let executeMany = (model, query) => {
 			})
 			return deferred.resolve(models)
 		})
-		.catch(function(err) {
+		.catch((err) => {
 			return deferred.reject(`Query: ${query} ${err}`)
 		})
 
@@ -69,7 +69,7 @@ let checkClause = (clause) => {
 	if(_.isUndefined(clause.operator))
 		throw Error('You must supply a clause to the addWhere method.')
 	let isOperatorSupported = false
-	_.each(Constants.Operators, function(v,k){
+	_.each(Constants.Operators, (v,k) => {
 		if(k === clause.operator) isOperatorSupported = true
 	})
 	if(!isOperatorSupported)
@@ -92,7 +92,7 @@ let transformClauseFromOldSyntax = (clause) => {
 
 let checkModels = (models) => {
 	if(_.isArray(models)) {
-		_.each(models, function(model){
+		_.each(models, (model) => {
 			if(!(model.label)) {
 				throw Error('The model array should only contain Model instances.')
 			}

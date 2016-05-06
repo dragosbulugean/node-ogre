@@ -146,7 +146,7 @@ class Model {
 						}
 
 						else if (this.definition[key].type instanceof FieldTypes.ManyRelation){
-							_.each(value, function(item){
+							_.each(value, (item) => {
 								if(_.keys(item).length === 1) {
 									if(item.id) this[key].push(item.id)
 								} else {
@@ -176,7 +176,7 @@ class Model {
 	generateDataForPersistence() {
 		let data = {}
 
-		_.each(this.getPrimitiveFields(), function(field){
+		_.each(this.getPrimitiveFields(), (field) => {
 			if(this[field] == null) {
 				//Do nothing
 			}

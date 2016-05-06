@@ -12,7 +12,7 @@ import Model from './Model'
 
 let txn_save_one = (txn, model) => {
 	let data = model.generateDataForPersistence()
-	let m1 = txn.save(data, function(err, node){
+	let m1 = txn.save(data, (err, node) => {
 		if(!_.isUndefined(node)) {
 			model.id = node.id
 		}
@@ -59,7 +59,7 @@ let save = (model, relationed) => {
 	let delete_relations_batch = model.seraph().batch()
 	//delete existing relations if not new
 	if(model.id) {
-		relationed.forEach(function(r){
+		relationed.forEach((r) => {
 			let model1Id = model.id
 			let model2Label = model.definition[r].type.to.label
 			let relationType = model.definition[r].type.relationType
@@ -67,7 +67,7 @@ let save = (model, relationed) => {
 		})
 	}
 
-	delete_relations_batch.commit(function(err, results) {
+	delete_relations_batch.commit((err, results) => {
 		if (err) {
 			return deferred.reject(err)
 		}
@@ -75,39 +75,39 @@ let save = (model, relationed) => {
 		let save_models_batch = model.seraph().batch()
 		let txn_model1 = txn_save_one(save_models_batch, model)
 
-		_.each(relationed, function(field){
+		_.each(relationed, (field) => {
 			if(model[field]) {
 				if(model.definition[field].type instanceof FieldTypes.OneRelation) {
 					if(!_.isNumber(model[field])) txn_save_one(save_models_batch, model[field])
 				} else if (model.definition[field].type instanceof FieldTypes.ManyRelation) {
-					model[field].forEach(function(m){
+					model[field].forEach((m) => {
 						if(!_.isNumber(m)) txn_save_one(save_models_batch, m)
 					})
 				}
 			}
 		})
 
-		save_models_batch.commit(function(err, results) {
+		save_models_batch.commit((err, results) => {
 			if (err) {
 				return deferred.reject(err)
 			}
 
 			let save_relations_batch = model.seraph().batch()
 
-			_.each(relationed, function(field){
+			_.each(relationed, (field) => {
 				if(model[field]) {
 					if(model.definition[field].type instanceof FieldTypes.OneRelation) {
 						let relationType = model.definition[field].type.relationType
 						let id2 = model[field].id || model[field]
 						txn_save_relation(save_relations_batch, model.id, id2, relationType)
 					} else if (model.definition[field].type instanceof FieldTypes.ManyRelation) {
-						model[field].forEach(function(m){
+						model[field].forEach((m) => {
 							let relationType = model.definition[field].type.relationType
-							let ids = model[field].map(function(item) {
+							let ids = model[field].map((item) => {
 								return item.id || item
 							})
 
-							ids.forEach(function(item) {
+							ids.forEach((item) => {
 								txn_save_relation(save_relations_batch, model.id, item, relationType)
 							})
 
@@ -116,7 +116,7 @@ let save = (model, relationed) => {
 				}
 			})
 
-			save_relations_batch.commit(function(err, results) {
+			save_relations_batch.commit((err, results) => {
 				if(err) {
 					return deferred.reject(err)
 				}
@@ -133,18 +133,18 @@ let remove = (model, hard) => {
 	let deferred = Promise.defer()
 
 	if(_.isUndefined(model.id)) {
-		process.nextTick(function(){
+		process.nextTick(() => {
 			return deferred.reject('Models need to be saved before deletion.')
 		})
 	}
 
 	if(hard) {
-		model.seraph().delete(model.id, true, function(err, node) {
+		model.seraph().delete(model.id, true, (err, node) => {
 			model.isSyncronised = true
 			return deferred.resolve(model)
 		})
 	} else {
-		model.seraph().label(model.id, [`_${model.label}`], true, function(err, node){
+		model.seraph().label(model.id, [`_${model.label}`], true, (err, node) => {
 			model.isSyncronised = true
 			return deferred.resolve(model)
 		})

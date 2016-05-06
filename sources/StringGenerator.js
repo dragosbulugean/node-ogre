@@ -32,7 +32,7 @@ class StringGenerator {
 
 	getMap(mapName, propertiesList, selectList, isIdSupplied) {
 		let query = []
-		propertiesList.forEach(function(v,k){
+		propertiesList.forEach((v,k) => {
 			if(v==='id') {
 				if(isIdSupplied) {
 					query.push(`id:${mapName}.id`)
@@ -142,7 +142,7 @@ class StringGenerator {
 		if(direction!='ASC' && direction!='DESC')
 			throw Error('Supply direction with value ASC|DESC.')
 		let efs = []
-		_.each(fields, function(field){
+		_.each(fields, (field) => {
 			efs.push(`${mapName}.${field}`)
 		})
 		let query = `ORDER BY ${efs.join(', ')} ${direction}`

@@ -24,7 +24,7 @@ let serializeModels = (models) => {
 
 let getData = (modelOrModels) => {
 	if(_.isArray(modelOrModels)) {
-		return _.map(modelOrModels, function(model){
+		return _.map(modelOrModels, (model) => {
 			return getModelData(model)
 		})
 	} else {
@@ -34,13 +34,13 @@ let getData = (modelOrModels) => {
 
 let getModelData = (model) => {
 	let data = {}
-	_.each(_.keys(model.data), function(key){
+	_.each(_.keys(model.data), (key) => {
 		if(model.definition[key].type instanceof FieldTypes.OneRelation) {
 			if(model[key]===null) data[key] = null
 			else data[key] = model[key].data || model[key]
 		} else if(model.definition[key].type instanceof FieldTypes.ManyRelation) {
 			let arrayData = []
-			_.each(model[key], function(m){
+			_.each(model[key], (m) => {
 				arrayData.push(m.data||m)
 			})
 			data[key] = arrayData

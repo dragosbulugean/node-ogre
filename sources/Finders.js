@@ -45,7 +45,7 @@ let findByExample = (model, example, selectList, embedList) => {
 	queryBuilder.model(model)
 	if(selectList) queryBuilder.selectList(selectList)
 	if(embedList) queryBuilder.embedList(embedList)
-	Object.keys(example).forEach(function(key){
+	Object.keys(example).forEach((key) => {
 		let clause = {
 			operator: 'eq',
 			field: key,
@@ -69,7 +69,7 @@ let findByQueryString = (model, query) => {
 let count = (model) => {
 	let deferred = Promise.defer()
 	let queryBuilder = new QueryBuilder().model(model).isCount(true)
-	model.seraph().query(queryBuilder.getQuery(), {}, function(err, count){
+	model.seraph().query(queryBuilder.getQuery(), {}, (err, count) => {
 		if (err) {
 			return deferred.reject(err)
 		}
@@ -84,7 +84,7 @@ let findRandom = (model, number, selectList, embedList) => {
 		return deferred.reject('Please supply number of records you want to get back. >0')
 	let countPromise = count(model)
 	countPromise
-		.then(function(count){
+		.then((count) => {
 			if(count<1)
 				return deferred.reject(`There are no models of type: ${model.label} in the db.`)
 			let random = chance.integer({min: 0, max: count-number})
@@ -92,14 +92,14 @@ let findRandom = (model, number, selectList, embedList) => {
 			if(selectList) queryBuilder.selectList(selectList)
 			if(embedList) queryBuilder.embedList(embedList)
 			model.findByQueryBuilder(queryBuilder)
-				.then(function(models){
+				.then((models) => {
 					return deferred.resolve(models)
 				})
-				.catch(function(err){
+				.catch((err) => {
 					return deferred.reject(err)
 				})
 		})
-		.catch(function(err){
+		.catch((err) => {
 			return deferred.reject(err)
 		})
 	return deferred.promise
