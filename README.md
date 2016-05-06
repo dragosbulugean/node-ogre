@@ -12,7 +12,7 @@ Persistence is a breeze.
 Persist models and their relations in one call.
 Persist the relations by saving the main model representation.
 
-Written in Javascript ES6 wih async await API.
+Written in Javascript ES6.
 All interaction with the OGRE and throughout OGRE is made in the async evented spirit of node.js
 but Promises are used rather than callbacks, as they are easier to handle/read.
 
