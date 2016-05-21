@@ -9,9 +9,9 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/gulp test",
-    "compile": "./node_modules/.bin/gulp babel"
+    "compile": "./node_modules/.bin/gulp babel",
     "unit_tests": "./node_modules/.bin/gulp unit_test",
-    "integration_tests": "./node_modules/.bin/gulp integration_test",
+    "integration_tests": "./node_modules/.bin/gulp integration_test"
   },
   "author": "Dragos Bulugean dragos.bulugean@gmail.com",
   "license": "MIT",
