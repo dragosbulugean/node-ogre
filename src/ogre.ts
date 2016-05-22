@@ -1,21 +1,14 @@
-import { Model } from './models'
+import Schema from './schema'
+let neo4j = require('neo4j-driver')
 
-class Ogre {
+export default class Ogre {
     
     driver: string
-    models: Model[] = []
+    schemas: any[]
     
-    constructor(driver: string, models: Model[]) {
+    constructor(driver: string, schemas: any[]) {
         this.driver = driver
-        this.models.push(models)
+        this.schemas = schemas
     }
-    
-    addModel(model: Model) {
-        this.models.push(model)
-    }
-    
-    validateModels() {
-        
-    }
-    
+      
 }
