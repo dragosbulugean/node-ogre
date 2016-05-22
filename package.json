@@ -1,0 +1,34 @@
+{
+  "name": "node-ogre",
+  "version": "0.0.1",
+  "description": "Library to help you use Neo4j in an object oriended way.",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/tsc -w",
+    "build": "./node_modules/.bin/tsc",
+    "test": "./node_modules/.bin/tsc && node ./test/all.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dragosbulugean/node-ogre.git"
+  },
+  "keywords": [
+    "object",
+    "graph",
+    "mapper",
+    "neo4j",
+    "rest",
+    "api"
+  ],
+  "author": "Dragos Bulugean",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dragosbulugean/node-ogre/issues"
+  },
+  "homepage": "https://github.com/dragosbulugean/node-ogre#readme",
+  "devDependencies": {
+    "neo4j-driver": "^1.0.1",
+    "tape": "^4.5.1",
+    "typescript": "^1.8.10"
+  }
+}
