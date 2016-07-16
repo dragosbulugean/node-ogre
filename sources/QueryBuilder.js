@@ -88,18 +88,18 @@ class Neo4jQueryBuilder {
 
   addEmbedProperty(prop) {
       if(prop instanceof Array) {
-          this._embedList = _.union(this._embedList, prop)
+          this._embedList = _.uniq(this._embedList.concat(prop))
       } else {
-  		if(!_.contains(this._embedList,prop)) this._embedList.push(prop)
+  		if(!_.includes(this._embedList,prop)) this._embedList.push(prop)
       }
   	return this
   }
 
   addSelectProperty(prop) {
   	if(prop instanceof Array) {
-  		this._selectList = _.union(this._selectList, prop)
+  		this._selectList = _.uniq(this._selectList.concat(prop))
   	} else {
-  		if(!_.contains(this._selectList,prop)) this._selectList.push(prop)
+  		if(!_.includes(this._selectList,prop)) this._selectList.push(prop)
   	}
   	return this
   }
@@ -180,7 +180,7 @@ let embedPhase = function() {
 		let query = []
 
 		let selectList = []
-		if(_.contains(this.embedList(), v)) {
+		if(_.includes(this.embedList(), v)) {
 			selectList = selectList.concat(definition.type.to.getPrimitiveFields())
 		} else {
 			selectList.push('id')
@@ -191,9 +191,8 @@ let embedPhase = function() {
         this.sg.getRelationMatch('m_0', names.setGetNextRelationMapName(),
                                  this.model().label, definition))
 			let subWheres = []
-			_.each(this.subWhereClauses[v], function(clause){
-				subWheres.push(
-          this.sg.getWhere(names.getCurrentRelationMapName(),
+			this.subWhereClauses[v].forEach(function(clause){
+				subWheres.push(this.sg.getWhere(names.getCurrentRelationMapName(),
                            Constants.Operators[clause.operator],
                            clause.field, clause.value, clause.continuation))
 			}, this)
@@ -230,7 +229,7 @@ let embedPhase = function() {
 		return query.join('\n')
 	}
 
-	_.each(this.model().getRelationFields(), function(field){
+	this.model().getRelationFields().forEach(function(field){
 		query.push(embedToQuery.call(this, field))
 	}, this)
 

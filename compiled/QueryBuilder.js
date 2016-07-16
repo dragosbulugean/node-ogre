@@ -121,9 +121,9 @@ var Neo4jQueryBuilder = function () {
     key: 'addEmbedProperty',
     value: function addEmbedProperty(prop) {
       if (prop instanceof Array) {
-        this._embedList = _lodash2.default.union(this._embedList, prop);
+        this._embedList = _lodash2.default.uniq(this._embedList.concat(prop));
       } else {
-        if (!_lodash2.default.contains(this._embedList, prop)) this._embedList.push(prop);
+        if (!_lodash2.default.includes(this._embedList, prop)) this._embedList.push(prop);
       }
       return this;
     }
@@ -131,9 +131,9 @@ var Neo4jQueryBuilder = function () {
     key: 'addSelectProperty',
     value: function addSelectProperty(prop) {
       if (prop instanceof Array) {
-        this._selectList = _lodash2.default.union(this._selectList, prop);
+        this._selectList = _lodash2.default.uniq(this._selectList.concat(prop));
       } else {
-        if (!_lodash2.default.contains(this._selectList, prop)) this._selectList.push(prop);
+        if (!_lodash2.default.includes(this._selectList, prop)) this._selectList.push(prop);
       }
       return this;
     }
@@ -225,7 +225,7 @@ var embedPhase = function embedPhase() {
     var query = [];
 
     var selectList = [];
-    if (_lodash2.default.contains(this.embedList(), v)) {
+    if (_lodash2.default.includes(this.embedList(), v)) {
       selectList = selectList.concat(definition.type.to.getPrimitiveFields());
     } else {
       selectList.push('id');
@@ -235,7 +235,7 @@ var embedPhase = function embedPhase() {
       (function () {
         query.push(_this2.sg.getRelationMatch('m_0', names.setGetNextRelationMapName(), _this2.model().label, definition));
         var subWheres = [];
-        _lodash2.default.each(_this2.subWhereClauses[v], function (clause) {
+        _this2.subWhereClauses[v].forEach(function (clause) {
           subWheres.push(this.sg.getWhere(names.getCurrentRelationMapName(), Constants.Operators[clause.operator], clause.field, clause.value, clause.continuation));
         }, _this2);
         query.push(subWheres.join(' '));
@@ -261,7 +261,7 @@ var embedPhase = function embedPhase() {
     return query.join('\n');
   };
 
-  _lodash2.default.each(this.model().getRelationFields(), function (field) {
+  this.model().getRelationFields().forEach(function (field) {
     query.push(embedToQuery.call(this, field));
   }, this);
 

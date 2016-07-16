@@ -187,9 +187,9 @@ var Model = function () {
 							} else if (_this.definition[key].type instanceof _FieldTypes2.default.ManyRelation) {
 								_lodash2.default.each(value, function (item) {
 									if (_lodash2.default.keys(item).length === 1) {
-										if (item.id) this[key].push(item.id);
+										if (item.id) _this[key].push(item.id);
 									} else {
-										if (item.id) this[key].push(this.definition[key].type.to.instantiateFromDatabaseData(item, true));
+										if (item.id) _this[key].push(_this.definition[key].type.to.instantiateFromDatabaseData(item, true));
 									}
 								}, _this);
 							} else {
@@ -216,24 +216,26 @@ var Model = function () {
 	}, {
 		key: 'generateDataForPersistence',
 		value: function generateDataForPersistence() {
+			var _this2 = this;
+
 			var data = {};
 
 			_lodash2.default.each(this.getPrimitiveFields(), function (field) {
-				if (this[field] == null) {
+				if (_this2[field] == null) {
 					//Do nothing
-				} else if (this.definition[field].type == _FieldTypes2.default.Date) {
-						if (!_lodash2.default.isUndefined(this[field])) {
-							if (this[field] instanceof Date) {
-								data[field] = this[field].getTime();
-							} else if (this[field]._isAMomentObject) {
-								data[field] = this[field].toDate().getTime();
-							}
+				} else if (_this2.definition[field].type == _FieldTypes2.default.Date) {
+					if (!_lodash2.default.isUndefined(_this2[field])) {
+						if (_this2[field] instanceof Date) {
+							data[field] = _this2[field].getTime();
+						} else if (_this2[field]._isAMomentObject) {
+							data[field] = _this2[field].toDate().getTime();
 						}
-					} else if (this.definition[field].type == _FieldTypes2.default.JSON) {
-						data[field] = JSON.stringify(this[field]);
-					} else {
-						data[field] = this[field];
 					}
+				} else if (_this2.definition[field].type == _FieldTypes2.default.JSON) {
+					data[field] = JSON.stringify(_this2[field]);
+				} else {
+					data[field] = _this2[field];
+				}
 			}, this);
 
 			return data;
@@ -260,14 +262,14 @@ var Model = function () {
 				throw Error('Model has not been instantiated, cannot set properties.');
 			}
 
-			if (_lodash2.default.contains(this.getPrimitiveFields(), property)) {
+			if (_lodash2.default.includes(this.getPrimitiveFields(), property)) {
 				if (_lodash2.default.isUndefined(ValidationManager.validateType(this.definition[property].type, value))) {
 					this.data[property] = value;
 					this.isSyncronised = false;
 				} else {
 					throw Error('Value ' + value + ' of property ' + property + ('does not match the type declared in ' + this.label + '!'));
 				}
-			} else if (_lodash2.default.contains(this.getRelationFields(), property)) {
+			} else if (_lodash2.default.includes(this.getRelationFields(), property)) {
 				this.data[property] = value;
 				this.isSyncronised = false;
 			} else {

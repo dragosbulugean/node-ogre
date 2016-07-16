@@ -8,17 +8,17 @@
     "url": "https://github.com/dragosbulugean/node-ogre.git"
   },
   "scripts": {
-    "test": "./node_modules/.bin/gulp test",
-    "compile": "./node_modules/.bin/gulp babel",
-    "unit_tests": "./node_modules/.bin/gulp unit_test",
-    "integration_tests": "./node_modules/.bin/gulp integration_test"
+    "test": "gulp test",
+    "compile": "gulp babel",
+    "unit_tests": "gulp unit_test",
+    "integration_tests": "gulp integration_test"
   },
   "author": "Dragos Bulugean dragos.bulugean@gmail.com",
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.2.1",
     "chance": "^0.5.9",
-    "lodash": "^3.10.1",
+    "lodash": "^4.13.1",
     "moment": "^2.7.0",
     "seraph": "^0.14.1"
   },

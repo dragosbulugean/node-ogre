@@ -10,6 +10,12 @@ var Constants = _interopRequireWildcard(_Constants);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /**
+                                                                                                                                                           * Created by Dragos on 7/9/14.
+                                                                                                                                                           *
+                                                                                                                                                           * All data types we support in OGRE
+                                                                                                                                                           */
+
 var FieldTypes = {
 
 	//Integers, doubles, floats
@@ -37,6 +43,8 @@ var FieldTypes = {
 
 	//Singular relation between nodes. Sort of like one-to-one in RDBMS
 	OneRelation: function OneRelation(options) {
+		_classCallCheck(this, OneRelation);
+
 		if (!(options && options.to)) throw Error('Invalid relation definition!');
 		this.to = options.to;
 		this.relationType = options.relationType || 'has';
@@ -45,15 +53,13 @@ var FieldTypes = {
 
 	//Multiple relations between nodes. Sort of like one-to-many in RDBMS
 	ManyRelation: function ManyRelation(options) {
+		_classCallCheck(this, ManyRelation);
+
 		if (!(options && options.to)) throw Error('Invalid relation definition!');
 		this.to = options.to;
 		this.relationType = options.relationType || 'has';
 		this.direction = options.direction || Constants.Directions.Out;
 	}
-}; /**
-    * Created by Dragos on 7/9/14.
-    *
-    * All data types we support in OGRE
-    */
+};
 
 exports.default = FieldTypes;

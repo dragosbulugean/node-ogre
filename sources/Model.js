@@ -215,7 +215,7 @@ class Model {
 			throw Error('Model has not been instantiated, cannot set properties.')
 		}
 
-		if(_.contains(this.getPrimitiveFields(), property)) {
+		if(_.includes(this.getPrimitiveFields(), property)) {
 			if(_.isUndefined(ValidationManager.validateType(this.definition[property].type, value))){
 				this.data[property] = value
 				this.isSyncronised = false
@@ -224,7 +224,7 @@ class Model {
 					 					`does not match the type declared in ${this.label}!`)
 			}
 		}
-		else if(_.contains(this.getRelationFields(), property)) {
+		else if(_.includes(this.getRelationFields(), property)) {
 			this.data[property] = value
 			this.isSyncronised = false
 		}

@@ -53,21 +53,21 @@ var validateType = function validateType(type, value) {
 		if (typeof value == 'string') passed = true;
 		if (typeof value == 'number') passed = true; //fix this someday TODO
 	} else if (type == _FieldTypes2.default.Number) {
-			if (typeof value == 'number') passed = true;
-			if (typeof parseInt(value) == 'number') passed = true; //fix this someday TODO
-		} else if (type == _FieldTypes2.default.Boolean) {
-				if (typeof value == 'boolean') passed = true;
-			} else if (type == _FieldTypes2.default.Date) {
-				if (value instanceof _FieldTypes2.default.Date) passed = true;else if (value._isAMomentObject) passed = true;
-			} else if (type == _FieldTypes2.default.JSON) {
-				if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) == 'object') passed = true;
-			} else if (type == _FieldTypes2.default.Array) {
-				if (value instanceof Array) passed = true;
-			} else if (type instanceof _FieldTypes2.default.OneRelation) {
-				passed = true;
-			} else if (type instanceof _FieldTypes2.default.ManyRelation) {
-				passed = true;
-			}
+		if (typeof value == 'number') passed = true;
+		if (typeof parseInt(value) == 'number') passed = true; //fix this someday TODO
+	} else if (type == _FieldTypes2.default.Boolean) {
+		if (typeof value == 'boolean') passed = true;
+	} else if (type == _FieldTypes2.default.Date) {
+		if (value instanceof _FieldTypes2.default.Date) passed = true;else if (value._isAMomentObject) passed = true;
+	} else if (type == _FieldTypes2.default.JSON) {
+		if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) == 'object') passed = true;
+	} else if (type == _FieldTypes2.default.Array) {
+		if (value instanceof Array) passed = true;
+	} else if (type instanceof _FieldTypes2.default.OneRelation) {
+		passed = true;
+	} else if (type instanceof _FieldTypes2.default.ManyRelation) {
+		passed = true;
+	}
 
 	if (_lodash2.default.isNull(value)) passed = true;
 
