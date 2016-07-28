@@ -1,14 +1,32 @@
 import Schema from './schema'
-let neo4j = require('neo4j-driver')
+import Model from './model'
+const seraph = require("seraph")
 
 export default class Ogre {
     
-    driver: string
-    schemas: any[]
+    url: string
+    user: string
+    password: string
+    seraph: any
+    schemas: Schema[]
     
-    constructor(driver: string, schemas: any[]) {
-        this.driver = driver
+    constructor(url: string, user: string, password: string, schemas: Schema[]) {
+        this.url = url
+        this.user = user
+        this.password = password
+        this.seraph = seraph({
+            server: this.url,
+            user: this.user,
+            pass: this.password
+        })
         this.schemas = schemas
+        this.schemas.forEach(model => {
+          model.setSeraph(this.seraph)
+        })
+    }
+
+    model(label, schema: Schema) {
+
     }
       
 }

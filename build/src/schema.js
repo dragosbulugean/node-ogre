@@ -1,31 +1,13 @@
 "use strict";
-const cypher = require('./cypher');
-const utilities = require('./utilities');
 class Schema {
-    constructor() {
+    constructor(label, fields) {
+        this.label = label;
+        this.fields = fields;
     }
-    findById(label, id) {
-        return cypher.findModelByIdQuery(label, id);
-    }
-    instantiate() {
-        let model = {
-            schema: this
-        };
-        for (let f in this) {
-            model['label'] = this.label;
-            let field = this[f];
-            model[field] = undefined;
-            let accesors = field.getAccesors();
-            model[utilities.getterFunctionName(field.name)] = accesors.getterFunction;
-            model[utilities.setterFunctionName(field.name)] = accesors.setterFunction;
-            model['findById'] = this.findById;
-        }
-        if (!Schema.model)
-            Schema.model = model;
-        return Schema.model;
+    setSeraph(seraph) {
+        this.seraph = seraph;
     }
 }
-Schema.model = {};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Schema;
-//# sourceMappingURL=schema.js.map
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiU2NoZW1hLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vc3JjL1NjaGVtYS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUE7SUFNSSxZQUFZLEtBQWEsRUFBRSxNQUFXO1FBQ2xDLElBQUksQ0FBQyxLQUFLLEdBQUcsS0FBSyxDQUFBO1FBQ2xCLElBQUksQ0FBQyxNQUFNLEdBQUcsTUFBTSxDQUFBO0lBQ3hCLENBQUM7SUFFRCxTQUFTLENBQUMsTUFBVztRQUNqQixJQUFJLENBQUMsTUFBTSxHQUFHLE1BQU0sQ0FBQTtJQUN4QixDQUFDO0FBRUwsQ0FBQztBQWZEO3dCQWVDLENBQUEifQ==
