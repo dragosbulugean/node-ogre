@@ -30,3 +30,26 @@ export default class Ogre {
     }
       
 }
+
+export let Operators =	{
+	'and'   : 'AND',
+	'or'    : 'OR',
+	'in'    : 'IN',
+	'eq'    : '=',
+	'neq'   : '<>',
+	'gt'    : '>',
+	'lt'    : '<',
+	'gte'   : '>=',
+	'lte'   : '<=',
+	'regex' : '=~',
+	'n'     : 'IS NULL',
+	'nn'    : 'IS NOT NULL'
+}
+
+export interface Predicate {
+    field: string,
+    operator: string,
+    value: any,
+    continuation?: string
+}
+
