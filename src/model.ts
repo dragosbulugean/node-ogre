@@ -1,7 +1,7 @@
 import Schema from './Schema'
 import * as _ from 'lodash'
 import * as cypher from './cypher'
-import * as validate from './validate'
+import * as validator from './validator'
 import {Predicate} from './ogre'
 
 export default class Model {
@@ -51,32 +51,19 @@ export default class Model {
 
     set(key: string, value: any): void {
         if(_.has(this.schema.fields, key)) {
-            let passed: boolean = true
             let keyType = this.schema.fields[key]
-            
-            if(keyType === String) {
-                if(!_.isString(value)) passed = false
-            } else if(keyType === Number) {
-                if(!_.isNumber(value)) passed = false
-            } else if(keyType === Boolean) { 
-                if(!_.isBoolean(value)) passed = false
-            } else if(keyType === Date) { 
-                if(!_.isDate(value)) passed = false
-            } else if(_.isArray(keyType)) {
-                if(keyType[0] !== String && keyType[0] !== Number && keyType[0] !== Boolean) passed = false
-            } else if(keyType === JSON) { 
-                if(!_.isObject(value)) passed = false
-            }
-
+            let passed: boolean = validator.validateField(keyType, value)
             if(!passed)
-                console.warn(`Type of ${key} provided by program doesn't match the type 
-                              definition in the schema. We can't set field.`)  
+                throw new Error(
+                    `Type of ${key} provided by program doesn't match the type 
+                    definition in the schema. We can't set field.`)
             else
                 this.data[key] = value
             
         } else {
-          console.warn(`${this.schema.label} doesn't have a field named ${key} in definition. 
-                        We can't set field.`)  
+          throw new Error(
+              `${this.schema.label} doesn't have a field named ${key} in definition. 
+               We can't set field.`)  
         }
     }
 
@@ -102,35 +89,20 @@ export default class Model {
         let data: any = {}
         for(let key in object) {
             let value = object[key]
-            if(_.has(this.schema.fields, key)) {
-                
-                let passed: boolean = true
+            if(_.has(this.schema.fields, key)) {     
                 let keyType = this.schema.fields[key]
-                
-                if(keyType === String) {
-                    if(!_.isString(value)) passed = false
-                } else if(keyType === Number) {
-                    if(!_.isNumber(value)) passed = false
-                } else if(keyType === Boolean) { 
-                    if(!_.isBoolean(value)) passed = false
-                } else if(keyType === Date) {
-                    value = new Date(value)
-                    if(!_.isDate(value)) passed = false
-                } else if(_.isArray(keyType)) {
-                    if(keyType[0] !== String && keyType[0] !== Number && keyType[0] !== Boolean) passed = false
-                } else {
-                    value = JSON.parse(value)
-                }
-
+                let [passed, valueCorrected] = 
+                    validator.validateDataFromDbAndConvert(keyType, value)
                 if(!passed)
-                    console.warn(`Type of ${key} provided by DB doesn't match the type 
-                                definition in the schema. We can't set property.`)
+                    throw new Error(`Type of ${key} provided by DB doesn't match the type 
+                                     definition in the schema. We can't set property.`)
                 else
-                    data[key] = value  
+                    data[key] = valueCorrected  
 
             } else {
-                console.warn(`${this.schema.label} doesn't have a field named ${key} in definition. 
-                              We can't set property.`)  
+                throw new Error(
+                    `${this.schema.label} doesn't have a field named ${key} in definition. 
+                    We can't set property.`)  
             }
         }
         return data
@@ -138,11 +110,12 @@ export default class Model {
 
     save(): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.schema.seraph.save(this.toDatabaseStructure(this.data), this.schema.label, (err, node) => {
-                if (err) reject(err)
-                this.data = this.fromDatabaseStructure(node)
-                return resolve(this)
-            })
+            this.schema.seraph.save(
+                this.toDatabaseStructure(this.data), this.schema.label, (err, node) => {
+                    if (err) reject(err)
+                    this.data = this.fromDatabaseStructure(node)
+                    return resolve(this)
+                })
         })
     }
 
@@ -161,13 +134,14 @@ export default class Model {
 
     findByExample(predicates: Predicate[]): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.schema.seraph.query(cypher.queryFromPredicates(this.schema.label, predicates), (err, nodes) => {
-                if(err) return reject(err)
-                let wrappedNodes = []
-                nodes.forEach(node => {
-                    wrappedNodes.push(this.instance(this.fromDatabaseStructure(node)))
-                })
-                return resolve(wrappedNodes)
+            this.schema.seraph.query(
+                cypher.queryFromPredicates(this.schema.label, predicates), (err, nodes) => {
+                    if(err) return reject(err)
+                    let wrappedNodes = []
+                    nodes.forEach(node => {
+                        wrappedNodes.push(this.instance(this.fromDatabaseStructure(node)))
+                    })
+                    return resolve(wrappedNodes)
             })
         })   
     }

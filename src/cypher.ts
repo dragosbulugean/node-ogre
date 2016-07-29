@@ -19,7 +19,9 @@ export let returnNode = (mapName: string): string => {
 
 export let queryByLabelAndId = (label: string, id: number): string => {
     let mapName = 'n'
-    return `${matchLabel(mapName, label)} ${whereId(mapName, id)} ${returnNode(mapName)}`
+    return `${matchLabel(mapName, label)} 
+            ${whereId(mapName, id)} 
+            ${returnNode(mapName)}`
 }
 
 export let returnCount = (mapName: string): string => {
@@ -33,7 +35,9 @@ export let queryCount = (label: string): string => {
 
 export let queryFromPredicates = (label: string, predicates: Predicate[]): string => {
     let mapName = 'n'
-    return `${matchLabel(mapName, label)} ${predicatesToString(mapName, predicates)} ${returnNode(mapName)}`
+    return `${matchLabel(mapName, label)} 
+            ${predicatesToString(mapName, predicates)} 
+            ${returnNode(mapName)}`
 }
 
 export let predicatesToString = (mapName: string, predicates: Predicate[]): string => {
@@ -52,6 +56,5 @@ export let predicateToString = (mapName: string, predicate: Predicate): string =
     let value
     if(_.isString(predicate.value)) value = `"${predicate.value}"`
     else value = predicate.value
-    let queryString = `${mapName}.${predicate.field}=${value}`
-    return queryString
+    return `${mapName}.${predicate.field}=${value}`
 }

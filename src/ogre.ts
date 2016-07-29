@@ -31,6 +31,7 @@ export default class Ogre {
       
 }
 
+//Let here for documentation purposes
 export let Operators =	{
 	'and'   : 'AND',
 	'or'    : 'OR',

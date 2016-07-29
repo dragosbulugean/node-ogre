@@ -52,7 +52,7 @@ test('cypher lib test', async (t) => {
 
 test('integration test', async (t) => {
 
-    t.plan(13)
+    t.plan(20)
 
     let userSchema = new Schema('User', {
         id: Number,
@@ -70,8 +70,8 @@ test('integration test', async (t) => {
     let ogre = new Ogre(neoURL, neoUser, neoPass, [userSchema])
 
     let user = new Model(userSchema)
-    let name = 'dragos'
-    let email = 'dragos.bulugean@gmail.com'
+    let name = 'maya'
+    let email = 'maya@gmail.com'
     let date = new Date()
     let isAlive = true
     let age = 33
@@ -79,8 +79,8 @@ test('integration test', async (t) => {
     let numbers = [1,2,3,4,5]
     let bools = [true, true, false]
     let json = {
-        weapon: 'ak47',
-        car: 'aro'
+        tires: '25inch',
+        cartype: '4x4'
     }
 
     let bulk = {
@@ -108,6 +108,16 @@ test('integration test', async (t) => {
     t.deepEqual(u['numbers'], numbers, 'Should save number arrays')
     t.deepEqual(u['bools'], bools, 'Should save boolean arrays')
     t.deepEqual(u['json'], json, 'Should save json objects')
+
+    t.throws(() => user['name'] = 3, 'Throws when trying to set wrong type on string field.')
+    t.throws(() => user['registered'] = 'Jerry', 'Throws when trying to set wrong type on date field.')
+    t.throws(() => user['isAlive'] = new Date(), 'Throws when trying to set wrong type on boolean field.')
+    t.throws(() => user['age'] = new Date(), 'Throws when trying to set wrong type on number field.')
+    t.throws(() => user['colors'] = [new Date()], 'Throws when trying to set wrong type on array of strings field.')
+    t.throws(() => user['numbers'] = ['x','y'], 'Throws when trying to set wrong type on array of numbers field.')
+    t.throws(() => user['bools'] = [3,4,5], 'Throws when trying to set wrong type on array of booleans field.')
+    //TODO
+    //t.throws(() => user['json'] = new Date(), 'Throws when trying to set wrong type on JSON field.')
 
     let id = u['id']
     await u.remove()
@@ -141,13 +151,13 @@ test('integration test', async (t) => {
         {
             field: 'name',
             operator: '=',
-            value: 'dragos',
+            value: 'maya',
             continuation: 'and'
         },
         {
             field: 'email',
             operator: '=',
-            value: 'dragos.bulugean@gmail.com'
+            value: 'maya@gmail.com'
         }
     ]
 
