@@ -5,24 +5,23 @@ import Model from '../src/model'
 import Schema from '../src/schema'
 import * as cypher from '../src/cypher'
 import {Predicate} from '../src/ogre'
-const seraph = require('seraph')
 
 const neoURL = "http://localhost:7474"
 const neoUser =  "neo4j"
 const neoPass = "neo4j1"
 
-test('prepare', (t) => {
+test('prepare', async (t) => {
     t.plan(1)
-    let srph = seraph({
-        server: neoURL,
-        user: neoUser,
-        pass: neoPass
-    })
-    srph.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r', (err, result) => {
-        if (err) console.error(err)
+
+    let ogre = new Ogre(neoURL, neoUser, neoPass)
+
+    try {
+        let result = await ogre.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r')
         t.pass(`Wiped db from ${neoURL} in preparation for tests.`)
         t.end()
-    })
+    } catch (e) {
+        console.error(e)
+    }
 })
 
 test('cypher lib test', async (t) => {

@@ -10,7 +10,7 @@ export default class Ogre {
     seraph: any
     schemas: Schema[]
     
-    constructor(url: string, user: string, password: string, schemas: Schema[]) {
+    constructor(url: string, user: string, password: string, schemas?: Schema[]) {
         this.url = url
         this.user = user
         this.password = password
@@ -19,14 +19,19 @@ export default class Ogre {
             user: this.user,
             pass: this.password
         })
-        this.schemas = schemas
+        this.schemas = schemas || []
         this.schemas.forEach(model => {
           model.setSeraph(this.seraph)
         })
     }
 
-    model(label, schema: Schema) {
-
+    query(query: string) {
+        return new Promise((resolve, reject) => {
+            this.seraph.query(query, (err, response) => {
+                if(err) return reject(err)
+                resolve(response)
+            })
+        })
     }
       
 }
