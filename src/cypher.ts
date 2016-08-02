@@ -49,8 +49,6 @@ export let predicatesToString = (mapName: string, predicates: Predicate[]): stri
 }
 
 export let predicateToString = (mapName: string, predicate: Predicate): string => {
-    let value
-    if(_.isString(predicate.value)) value = `"${predicate.value}"`
-    else value = predicate.value
+    let value = _.isString(predicate.value) ? `"${predicate.value}"` : predicate.value
     return `${mapName}.${predicate.field}=${value}`
 }

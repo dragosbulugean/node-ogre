@@ -4,11 +4,33 @@ import Operators from '../src/ogre'
 import Model from '../src/model'
 import Schema from '../src/schema'
 import * as cypher from '../src/cypher'
-import {Predicate} from '../src/ogre'
+import {Predicate, Relation} from '../src/ogre'
 
 const neoURL = "http://localhost:7474"
 const neoUser =  "neo4j"
 const neoPass = "neo4j1"
+
+let UserSchema = new Schema('User', {
+    id: Number,
+    name: String,
+    email: String,
+    registered: Date,
+    isAlive: Boolean,
+    age: Number,
+    colors: [String],
+    numbers: [Number],
+    bools: [Boolean],
+    json: JSON,
+    roles: new Relation('Role', 'has')
+})
+
+let RoleSchema = new Schema('Role', {
+    id: Number,
+    description: String,
+    users: new Relation('User', 'has')
+})
+
+let ogre = new Ogre(neoURL, neoUser, neoPass, [UserSchema, RoleSchema])
 
 test('prepare', async (t) => {
     t.plan(1)
@@ -18,9 +40,10 @@ test('prepare', async (t) => {
     try {
         let result = await ogre.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r')
         t.pass(`Wiped db from ${neoURL} in preparation for tests.`)
-        t.end()
     } catch (e) {
         console.error(e)
+    } finally {
+        t.end()
     }
 })
 
@@ -53,22 +76,7 @@ test('integration test', async (t) => {
 
     t.plan(20)
 
-    let userSchema = new Schema('User', {
-        id: Number,
-        name: String,
-        email: String,
-        registered: Date,
-        isAlive: Boolean,
-        age: Number,
-        colors: [String],
-        numbers: [Number],
-        bools: [Boolean],
-        json: JSON
-    })
-
-    let ogre = new Ogre(neoURL, neoUser, neoPass, [userSchema])
-
-    let user = new Model(userSchema)
+    let user = new Model(UserSchema)
     let name = 'maya'
     let email = 'maya@gmail.com'
     let date = new Date()
@@ -162,5 +170,13 @@ test('integration test', async (t) => {
 
     let users = await user.findByExample(predicates)
     t.pass('Should get nodes by predicates')
+
+    user = new Model(UserSchema)
+    user.setBulk(bulk)
+    await user.save()
+    let role = new Model(RoleSchema)
+    role['description'] = 'Master Admin'
+    await role.save()
+    await role.saveRelation('users', user)
 
 })

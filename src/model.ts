@@ -8,10 +8,12 @@ export default class Model {
     
     schema: Schema
     data: any
+    private synchronized: boolean
 
     constructor(schema: Schema) {
         this.schema = schema
         this.data = {}
+        this.synchronized = false
         for(let key in schema.fields) {
             Object.defineProperty(this, key, {
                 get: (): any => {
@@ -25,6 +27,10 @@ export default class Model {
                 enumerable: true
             })
         }
+    }
+
+    type(): string{
+        return this.schema.label
     }
 
     instance(data?: any): Model {
@@ -59,6 +65,7 @@ export default class Model {
                     definition in the schema. We can't set field.`)
             else
                 this.data[key] = value
+                this.synchronized = false
             
         } else {
           throw new Error(
@@ -110,12 +117,33 @@ export default class Model {
 
     save(): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.schema.seraph.save(
-                this.toDatabaseStructure(this.data), this.schema.label, (err, node) => {
-                    if (err) reject(err)
+            this.schema.seraph.saveAsync(this.toDatabaseStructure(this.data), this.schema.label)
+                .then(node => {
                     this.data = this.fromDatabaseStructure(node)
+                    this.synchronized = true
                     return resolve(this)
                 })
+                .catch(error => {
+                    return reject(error)
+                })
+        })
+    }
+
+    saveRelation(field: string, model: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if(_.has(this.schema.fields, field)) {
+                if(!this['id']) return reject('Model not saved yet. We cannot relate it to something else.')
+                if(_.isUndefined(model['id'])) return reject(`${model.schema.label} isn't saved yet. We cannot relate it to something else.`)
+                this.schema.seraph.relateAsync(this['id'], this.schema.fields[field].type, model['id'])
+                    .then(result => {
+                        return resolve(result)
+                    })
+                    .catch(error => {
+                        return reject(error)
+                    })
+            } else {
+                throw new Error(`${field} not found in schema ${this.schema}`)
+            }
         })
     }
 
@@ -123,26 +151,31 @@ export default class Model {
         return new Promise((resolve, reject) => {
             if(!id) return reject('`Warning: findById was called without the id parameter.')
             let query = cypher.queryByLabelAndId(this.schema.label, id)
-            this.schema.seraph.query(query, (err, nodes) => {
-                if(err) return reject(err)
-                if(nodes.length == 0) return reject(`Warning: no node found with id=${id}`) 
-                if(nodes.length > 1) return reject(`Warning: found more than one node with id=${id}`) 
-                return resolve(this.instance(this.fromDatabaseStructure(nodes[0])))
-            })
+            this.schema.seraph.queryAsync(query)
+                .then(nodes => {
+                    if(nodes.length == 0) return reject(`Warning: no node found with id=${id}`) 
+                    if(nodes.length > 1) return reject(`Warning: found more than one node with id=${id}`) 
+                    return resolve(this.instance(this.fromDatabaseStructure(nodes[0])))
+                })
+                .catch(error => {
+                    return reject(error)
+                })
         })   
     }
 
     findByExample(predicates: Predicate[]): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.schema.seraph.query(
-                cypher.queryFromPredicates(this.schema.label, predicates), (err, nodes) => {
-                    if(err) return reject(err)
+            this.schema.seraph.queryAsync(cypher.queryFromPredicates(this.schema.label, predicates))
+                .then(nodes => {
                     let wrappedNodes = []
                     nodes.forEach(node => {
                         wrappedNodes.push(this.instance(this.fromDatabaseStructure(node)))
                     })
                     return resolve(wrappedNodes)
-            })
+                })
+                .catch(error => {
+                    return reject(error)
+                })
         })   
     }
 
@@ -159,40 +192,49 @@ export default class Model {
     remove(id?: number): Promise<any> {
         return new Promise((resolve, reject) => {
             id = id || this.data.id
-            this.schema.seraph.label(id, [`_${this.schema.label}`], true, (err) => {
-                if(err) return reject(err)
-                this.data = {}
-                return resolve()
-            })
+            this.schema.seraph.labelAsync(id, [`_${this.schema.label}`], true)
+                .then(() => {
+                    this.data = {}
+                    return resolve()
+                })
+                .catch(error => {
+                    return reject(error)
+                })             
         })   
     }
 
     hardRemove(id?: number): Promise<any> {
         return new Promise((resolve, reject) => {
             id = id || this.data.id
-            this.schema.seraph.delete(id, (err) => {
-                if (err) return reject(err)
-                this.data = {}
-                return resolve() 
-            })
+            this.schema.seraph.deleteAsync(id)
+                .then(()=>{
+                    this.data = {}
+                    return resolve() 
+                })
+                .catch(error => {
+                    return reject(error)
+                })
         })   
     }
 
     count(): Promise<any> {
         return new Promise((resolve, reject) => {
             let query = cypher.queryCount(this.schema.label)
-            this.schema.seraph.query(query, (err, count) => {
-                if (err) return reject(err)
-                if (!count) return resolve(0)
-                let key = Object.keys(count[0])[0]
-                let c = count[0][key]
-                return resolve(c) 
-            })
+            this.schema.seraph.queryAsync(query)
+                .then(count => {
+                    if (!count) return resolve(0)
+                    let key = Object.keys(count[0])[0]
+                    let c = count[0][key]
+                    return resolve(c) 
+                })
+                .catch(error => {
+                    return reject(error)
+                })
         })   
     }
 
     dropId(): void {
-        delete this.data.id
+        this.data.id = undefined
     }
 
 }
