@@ -50,6 +50,15 @@ export default class Ogre {
             else
                 rel.setToSchema(schemaMap[rel.toSchemaString])
         })
+        for (let schemaKey in schemaMap) {
+            let schema = schemaMap[schemaKey]
+            for (let fieldKey in schema.fields) {
+                let field = schema.fields[fieldKey]
+                if(field instanceof Relation) {
+
+                } 
+            }
+        }
     }
 
     query(query: string): Promise<any> {
@@ -89,7 +98,7 @@ export class Relation {
     constructor(toSchemaString: string, type: string, direction?: string) {
         this.toSchemaString = toSchemaString
         this.type = type
-        this.direction = direction || Directions.InOut
+        this.direction = direction
     }
 
     setToSchema(toSchema: Schema) {

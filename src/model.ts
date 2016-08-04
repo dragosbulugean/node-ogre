@@ -7,71 +7,13 @@ import {Predicate} from './ogre'
 export default class Model {
     
     schema: Schema
-    data: any
-    private synchronized: boolean
 
     constructor(schema: Schema) {
         this.schema = schema
-        this.data = {}
-        this.synchronized = false
-        for(let key in schema.fields) {
-            Object.defineProperty(this, key, {
-                get: (): any => {
-                    return this.data[key]
-                },
-                set: (value: any): any => {
-                    this.set(key, value)
-                    return this
-                },
-                configurable: false,
-                enumerable: true
-            })
-        }
     }
 
     type(): string{
         return this.schema.label
-    }
-
-    instance(data?: any): Model {
-        let model = new Model(this.schema)
-        if(data) model.setBulk(data)
-        return model
-    }
-
-    getData(): any {
-        return this.data
-    }
-
-    get(key: string): any {
-        if(_.has(this.schema.fields, key)) {
-            return this.data[key]
-        }
-    }
-
-    setBulk(object: any): void {
-        for(let key in object) {
-            this.set(key, object[key])
-        }
-    }
-
-    set(key: string, value: any): void {
-        if(_.has(this.schema.fields, key)) {
-            let keyType = this.schema.fields[key]
-            let passed: boolean = validator.validateField(keyType, value)
-            if(!passed)
-                throw new Error(
-                    `Type of ${key} provided by program doesn't match the type 
-                    definition in the schema. We can't set field.`)
-            else
-                this.data[key] = value
-                this.synchronized = false
-            
-        } else {
-          throw new Error(
-              `${this.schema.label} doesn't have a field named ${key} in definition. 
-               We can't set field.`)  
-        }
     }
 
     toDatabaseStructure(object: any): any {
@@ -115,13 +57,12 @@ export default class Model {
         return data
     }
 
-    save(): Promise<any> {
+    save(data: any): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.schema.seraph.saveAsync(this.toDatabaseStructure(this.data), this.schema.label)
+            this.schema.seraph.saveAsync(this.toDatabaseStructure(data), this.schema.label)
                 .then(node => {
-                    this.data = this.fromDatabaseStructure(node)
-                    this.synchronized = true
-                    return resolve(this)
+                    let result = this.fromDatabaseStructure(node)
+                    return resolve(result)
                 })
                 .catch(error => {
                     return reject(error)
@@ -129,12 +70,13 @@ export default class Model {
         })
     }
 
-    saveRelation(field: string, model: any): Promise<any> {
+    saveRelation(field: string, model: any, relatedToModel: any): Promise<any> {
         return new Promise((resolve, reject) => {
             if(_.has(this.schema.fields, field)) {
-                if(!this['id']) return reject('Model not saved yet. We cannot relate it to something else.')
-                if(_.isUndefined(model['id'])) return reject(`${model.schema.label} isn't saved yet. We cannot relate it to something else.`)
-                this.schema.seraph.relateAsync(this['id'], this.schema.fields[field].type, model['id'])
+                if(_.isUndefined(model.id) || _.isUndefined(relatedToModel.id)) 
+                    return reject(`Model or relatedToModel doesn't have id. We cannot save the relation.`)
+                let type = this.schema.fields[field].type
+                this.schema.seraph.relateAsync(model.id, type, relatedToModel.id)
                     .then(result => {
                         return resolve(result)
                     })
@@ -155,7 +97,7 @@ export default class Model {
                 .then(nodes => {
                     if(nodes.length == 0) return reject(`Warning: no node found with id=${id}`) 
                     if(nodes.length > 1) return reject(`Warning: found more than one node with id=${id}`) 
-                    return resolve(this.instance(this.fromDatabaseStructure(nodes[0])))
+                    return resolve(this.fromDatabaseStructure(nodes[0]))
                 })
                 .catch(error => {
                     return reject(error)
@@ -169,7 +111,7 @@ export default class Model {
                 .then(nodes => {
                     let wrappedNodes = []
                     nodes.forEach(node => {
-                        wrappedNodes.push(this.instance(this.fromDatabaseStructure(node)))
+                        wrappedNodes.push(this.fromDatabaseStructure(node))
                     })
                     return resolve(wrappedNodes)
                 })
@@ -189,12 +131,10 @@ export default class Model {
         })
     }  
 
-    remove(id?: number): Promise<any> {
+    remove(id: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            id = id || this.data.id
             this.schema.seraph.labelAsync(id, [`_${this.schema.label}`], true)
                 .then(() => {
-                    this.data = {}
                     return resolve()
                 })
                 .catch(error => {
@@ -203,12 +143,10 @@ export default class Model {
         })   
     }
 
-    hardRemove(id?: number): Promise<any> {
+    hardRemove(id: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            id = id || this.data.id
             this.schema.seraph.deleteAsync(id)
                 .then(()=>{
-                    this.data = {}
                     return resolve() 
                 })
                 .catch(error => {
@@ -231,10 +169,6 @@ export default class Model {
                     return reject(error)
                 })
         })   
-    }
-
-    dropId(): void {
-        this.data.id = undefined
     }
 
 }

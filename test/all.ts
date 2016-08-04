@@ -4,7 +4,7 @@ import Operators from '../src/ogre'
 import Model from '../src/model'
 import Schema from '../src/schema'
 import * as cypher from '../src/cypher'
-import {Predicate, Relation} from '../src/ogre'
+import {Predicate, Relation, Directions} from '../src/ogre'
 
 const neoURL = "http://localhost:7474"
 const neoUser =  "neo4j"
@@ -21,13 +21,13 @@ let UserSchema = new Schema('User', {
     numbers: [Number],
     bools: [Boolean],
     json: JSON,
-    roles: new Relation('Role', 'has')
+    roles: new Relation('Role', 'is', Directions.In)
 })
 
 let RoleSchema = new Schema('Role', {
     id: Number,
     description: String,
-    users: new Relation('User', 'has')
+    users: new Relation('User', 'is', Directions.Out)
 })
 
 let ogre = new Ogre(neoURL, neoUser, neoPass, [UserSchema, RoleSchema])
@@ -74,9 +74,9 @@ test('cypher lib test', async (t) => {
 
 test('integration test', async (t) => {
 
-    t.plan(20)
+    t.plan(12)
 
-    let user = new Model(UserSchema)
+    let User = new Model(UserSchema)
     let name = 'maya'
     let email = 'maya@gmail.com'
     let date = new Date()
@@ -90,7 +90,7 @@ test('integration test', async (t) => {
         cartype: '4x4'
     }
 
-    let bulk = {
+    let userData = {
         name: name,
         email: email,
         registered: date,
@@ -102,58 +102,37 @@ test('integration test', async (t) => {
         json: json
     }
     
-    user.setBulk(bulk)
+    let u = await User.save(userData)
+    u = await User.findById(u.id)
+    t.equal(u.name, name, 'Should save string fields')
+    t.equal(u.email, email, 'Should save string fields')
+    t.deepEqual(u.registered, date, 'Should save date fields')
+    t.equal(u.isAlive, isAlive, 'Should save boolean fields')
+    t.equal(u.age, age, 'Should save number fields')
+    t.deepEqual(u.colors, colors, 'Should save string arrays')
+    t.deepEqual(u.numbers, numbers, 'Should save number arrays')
+    t.deepEqual(u.bools, bools, 'Should save boolean arrays')
+    t.deepEqual(u.json, json, 'Should save json objects')
 
-    await user.save()
-    let u = await user.findById(user['id'])
-    t.equal(u['name'], name, 'Should save string fields')
-    t.equal(u['email'], email, 'Should save string fields')
-    t.deepEqual(u['registered'], date, 'Should save date fields')
-    t.equal(u['isAlive'], isAlive, 'Should save boolean fields')
-    t.equal(u['age'], age, 'Should save number fields')
-    t.deepEqual(u['colors'], colors, 'Should save string arrays')
-    t.deepEqual(u['numbers'], numbers, 'Should save number arrays')
-    t.deepEqual(u['bools'], bools, 'Should save boolean arrays')
-    t.deepEqual(u['json'], json, 'Should save json objects')
-
-    t.throws(() => user['name'] = 3, 'Throws when trying to set wrong type on string field.')
-    t.throws(() => user['registered'] = 'Jerry', 'Throws when trying to set wrong type on date field.')
-    t.throws(() => user['isAlive'] = new Date(), 'Throws when trying to set wrong type on boolean field.')
-    t.throws(() => user['age'] = new Date(), 'Throws when trying to set wrong type on number field.')
-    t.throws(() => user['colors'] = [new Date()], 'Throws when trying to set wrong type on array of strings field.')
-    t.throws(() => user['numbers'] = ['x','y'], 'Throws when trying to set wrong type on array of numbers field.')
-    t.throws(() => user['bools'] = [3,4,5], 'Throws when trying to set wrong type on array of booleans field.')
-    //TODO
-    //t.throws(() => user['json'] = new Date(), 'Throws when trying to set wrong type on JSON field.')
-
-    let id = u['id']
-    await u.remove()
+    let id = u.id
+    await User.remove(id)
     try {
-        await u.findById(id)
+        await User.findById(id)
     } catch (e) {
-        t.equal(1, 1, 'Should soft-remove nodes')
-        await u.hardRemove(id)
+        t.pass('Should soft-remove nodes')
+        await User.hardRemove(id)
     }
 
-    user = user.instance(bulk)
-    await user.save()
-    await user.hardRemove()
+    u = await User.save(userData)
+    await User.hardRemove(u.id)
     try {
-        await user.findById(user['id'])
+        await User.findById(u.id)
     } catch (e) {
         t.pass('Should hard-remove nodes')
     }
 
-    // let u1 = new Model(userSchema)
-    // let u2 = new Model(userSchema)
-    // u1.setBulk(bulk)
-    // u2.setBulk(bulk)
-    // await u1.save()
-    // await u2.save()
-    // let count = await user.count()
-    // t.equal(count, 2, 'Should count nodes of label.')
-    t.pass('Should count nodes of label.')
-
+    await User.save(userData)
+    await User.save(userData)
     let predicates: Predicate[] = [
         {
             field: 'name',
@@ -168,15 +147,14 @@ test('integration test', async (t) => {
         }
     ]
 
-    let users = await user.findByExample(predicates)
-    t.pass('Should get nodes by predicates')
+    let users = await User.findByExample(predicates)
+    t.equal(2, users.length, 'Should get nodes by predicates')
 
-    user = new Model(UserSchema)
-    user.setBulk(bulk)
-    await user.save()
-    let role = new Model(RoleSchema)
-    role['description'] = 'Master Admin'
-    await role.save()
-    await role.saveRelation('users', user)
+    let Role = new Model(RoleSchema)
+    let roleData = {}
+    roleData['description'] = 'Master Admin'
+    let role = await Role.save(roleData)
+    await Role.saveRelation('users', users[0], role)
+    await User.hardRemove(users[1].id)
 
 })
