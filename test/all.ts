@@ -6,7 +6,7 @@ import Schema from '../src/schema'
 import * as cypher from '../src/cypher'
 import {Predicate, Relation, Directions} from '../src/ogre'
 
-const neoURL = "http://localhost:7474"
+const neoURL = "http://localhost:32810"
 const neoUser =  "neo4j"
 const neoPass = "neo4j1"
 
@@ -21,13 +21,13 @@ let UserSchema = new Schema('User', {
     numbers: [Number],
     bools: [Boolean],
     json: JSON,
-    roles: new Relation('Role', 'is', Directions.In)
+    roles: new Relation('Role', 'is')
 })
 
 let RoleSchema = new Schema('Role', {
     id: Number,
     description: String,
-    users: new Relation('User', 'is', Directions.Out)
+    users: new Relation('User', 'is')
 })
 
 let ogre = new Ogre(neoURL, neoUser, neoPass, [UserSchema, RoleSchema])
@@ -155,6 +155,7 @@ test('integration test', async (t) => {
     roleData['description'] = 'Master Admin'
     let role = await Role.save(roleData)
     await Role.saveRelation('users', users[0], role)
-    await User.hardRemove(users[1].id)
+    // await User.hardRemove(users[1].id)
+    // await Role.hardRemove(role['id'])
 
 })

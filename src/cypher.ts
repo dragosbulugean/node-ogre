@@ -52,3 +52,8 @@ export let predicateToString = (mapName: string, predicate: Predicate): string =
     let value = _.isString(predicate.value) ? `"${predicate.value}"` : predicate.value
     return `${mapName}.${predicate.field}=${value}`
 }
+
+export let relateNodes = (node1Id: number, node2Id: number, type: string) => {
+    return `match (n1), (n2) where id(n1)=${node1Id} and id(n2)=${node2Id} \
+            create (n1)-[r:${type}]->(n2) return r`
+}

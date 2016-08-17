@@ -50,15 +50,15 @@ export default class Ogre {
             else
                 rel.setToSchema(schemaMap[rel.toSchemaString])
         })
-        for (let schemaKey in schemaMap) {
-            let schema = schemaMap[schemaKey]
-            for (let fieldKey in schema.fields) {
-                let field = schema.fields[fieldKey]
-                if(field instanceof Relation) {
+        // for (let schemaKey in schemaMap) {
+        //     let schema = schemaMap[schemaKey]
+        //     for (let fieldKey in schema.fields) {
+        //         let field = schema.fields[fieldKey]
+        //         if(field instanceof Relation) {
 
-                } 
-            }
-        }
+        //         } 
+        //     }
+        // }
     }
 
     query(query: string): Promise<any> {

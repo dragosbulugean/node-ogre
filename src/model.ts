@@ -70,13 +70,14 @@ export default class Model {
         })
     }
 
-    saveRelation(field: string, model: any, relatedToModel: any): Promise<any> {
+    saveRelation(field: string, node1: any, node2: any): Promise<any> {
         return new Promise((resolve, reject) => {
             if(_.has(this.schema.fields, field)) {
-                if(_.isUndefined(model.id) || _.isUndefined(relatedToModel.id)) 
+                if(_.isUndefined(node1.id) || _.isUndefined(node2.id)) 
                     return reject(`Model or relatedToModel doesn't have id. We cannot save the relation.`)
                 let type = this.schema.fields[field].type
-                this.schema.seraph.relateAsync(model.id, type, relatedToModel.id)
+                let query = cypher.relateNodes(node1.id, node2.id, type)
+                this.schema.seraph.queryAsync(query)
                     .then(result => {
                         return resolve(result)
                     })
