@@ -1,50 +1,50 @@
 "use strict";
-const _ = require('lodash');
-exports.matchLabel = (mapName, label) => {
-    return `match (n:${label})`;
+Object.defineProperty(exports, "__esModule", { value: true });
+var _ = require("lodash");
+exports.matchLabel = function (mapName, label) {
+    return "match (n:" + label + ")";
 };
-exports.where = (mapName) => {
-    return `where ${mapName}.`;
+exports.where = function (mapName) {
+    return "where " + mapName + ".";
 };
-exports.whereId = (mapName, id) => {
-    return `where id(n)=${id}`;
+exports.whereId = function (mapName, id) {
+    return "where id(n)=" + id;
 };
-exports.returnNode = (mapName) => {
-    return `return ${mapName}`;
+exports.returnNode = function (mapName) {
+    return "return " + mapName;
 };
-exports.queryByLabelAndId = (label, id) => {
-    let mapName = 'n';
-    return `${exports.matchLabel(mapName, label)} ${exports.whereId(mapName, id)} ${exports.returnNode(mapName)}`;
+exports.queryByLabelAndId = function (label, id) {
+    var mapName = 'n';
+    return exports.matchLabel(mapName, label) + " " + exports.whereId(mapName, id) + " " + exports.returnNode(mapName);
 };
-exports.returnCount = (mapName) => {
-    return `return count(${mapName})`;
+exports.returnCount = function (mapName) {
+    return "return count(" + mapName + ")";
 };
-exports.queryCount = (label) => {
-    let mapName = 'n';
-    return `${exports.matchLabel(mapName, label)} ${exports.returnCount(mapName)}`;
+exports.queryCount = function (label) {
+    var mapName = 'n';
+    return exports.matchLabel(mapName, label) + " " + exports.returnCount(mapName);
 };
-exports.queryFromPredicates = (label, predicates) => {
-    let mapName = 'n';
-    return `${exports.matchLabel(mapName, label)} ${exports.predicatesToString(mapName, predicates)} ${exports.returnNode(mapName)}`;
+exports.predicateToString = function (mapName, predicate) {
+    var value = _.isString(predicate.value) ? "\"" + predicate.value + "\"" : predicate.value;
+    return mapName + "." + predicate.field + "=" + value;
 };
-exports.predicatesToString = (mapName, predicates) => {
-    let predicateStrings = [];
-    predicates.forEach(predicate => {
+exports.predicatesToString = function (mapName, predicates) {
+    var predicateStrings = [];
+    predicates.forEach(function (predicate) {
         predicateStrings.push(exports.predicateToString(mapName, predicate));
         if (predicate.continuation)
             predicateStrings.push(predicate.continuation);
     });
-    let lastQueryPart = _.last(predicateStrings);
+    var lastQueryPart = _.last(predicateStrings);
     if (lastQueryPart.toLowerCase() === 'and' || lastQueryPart.toLocaleLowerCase() === 'or')
         predicates.splice(-1, 1);
-    return `where ` + predicateStrings.join(' ');
+    return "where " + predicateStrings.join(' ');
 };
-exports.predicateToString = (mapName, predicate) => {
-    let value = _.isString(predicate.value) ? `"${predicate.value}"` : predicate.value;
-    return `${mapName}.${predicate.field}=${value}`;
+exports.queryFromPredicates = function (label, predicates) {
+    var mapName = 'n';
+    return exports.matchLabel(mapName, label) + " " + exports.predicatesToString(mapName, predicates) + " " + exports.returnNode(mapName);
 };
-exports.relateNodes = (node1Id, node2Id, type) => {
-    return `match (n1), (n2) where id(n1)=${node1Id} and id(n2)=${node2Id} \
-            create (n1)-[r:${type}]->(n2) return r`;
+exports.relateNodes = function (node1Id, node2Id, type) {
+    return "match (n1), (n2) where id(n1)=" + node1Id + " and id(n2)=" + node2Id + "             create (n1)-[r:" + type + "]->(n2) return r";
 };
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY3lwaGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vc3JjL2N5cGhlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQ0EsTUFBWSxDQUFDLFdBQU0sUUFFbkIsQ0FBQyxDQUYwQjtBQUVoQixrQkFBVSxHQUFHLENBQUMsT0FBZSxFQUFFLEtBQWE7SUFDbkQsTUFBTSxDQUFDLFlBQVksS0FBSyxHQUFHLENBQUE7QUFDL0IsQ0FBQyxDQUFBO0FBRVUsYUFBSyxHQUFHLENBQUMsT0FBZTtJQUMvQixNQUFNLENBQUMsU0FBUyxPQUFPLEdBQUcsQ0FBQTtBQUM5QixDQUFDLENBQUE7QUFFVSxlQUFPLEdBQUcsQ0FBQyxPQUFlLEVBQUUsRUFBVTtJQUM3QyxNQUFNLENBQUMsZUFBZSxFQUFFLEVBQUUsQ0FBQTtBQUM5QixDQUFDLENBQUE7QUFFVSxrQkFBVSxHQUFHLENBQUMsT0FBZTtJQUNwQyxNQUFNLENBQUMsVUFBVSxPQUFPLEVBQUUsQ0FBQTtBQUM5QixDQUFDLENBQUE7QUFFVSx5QkFBaUIsR0FBRyxDQUFDLEtBQWEsRUFBRSxFQUFVO0lBQ3JELElBQUksT0FBTyxHQUFHLEdBQUcsQ0FBQTtJQUNqQixNQUFNLENBQUMsR0FBRyxrQkFBVSxDQUFDLE9BQU8sRUFBRSxLQUFLLENBQUMsSUFBSSxlQUFPLENBQUMsT0FBTyxFQUFFLEVBQUUsQ0FBQyxJQUFJLGtCQUFVLENBQUMsT0FBTyxDQUFDLEVBQUUsQ0FBQTtBQUN6RixDQUFDLENBQUE7QUFFVSxtQkFBVyxHQUFHLENBQUMsT0FBZTtJQUNyQyxNQUFNLENBQUMsZ0JBQWdCLE9BQU8sR0FBRyxDQUFBO0FBQ3JDLENBQUMsQ0FBQTtBQUVVLGtCQUFVLEdBQUcsQ0FBQyxLQUFhO0lBQ2xDLElBQUksT0FBTyxHQUFHLEdBQUcsQ0FBQTtJQUNqQixNQUFNLENBQUMsR0FBRyxrQkFBVSxDQUFDLE9BQU8sRUFBRSxLQUFLLENBQUMsSUFBSSxtQkFBVyxDQUFDLE9BQU8sQ0FBQyxFQUFFLENBQUE7QUFDbEUsQ0FBQyxDQUFBO0FBRVUsMkJBQW1CLEdBQUcsQ0FBQyxLQUFhLEVBQUUsVUFBdUI7SUFDcEUsSUFBSSxPQUFPLEdBQUcsR0FBRyxDQUFBO0lBQ2pCLE1BQU0sQ0FBQyxHQUFHLGtCQUFVLENBQUMsT0FBTyxFQUFFLEtBQUssQ0FBQyxJQUFJLDBCQUFrQixDQUFDLE9BQU8sRUFBRSxVQUFVLENBQUMsSUFBSSxrQkFBVSxDQUFDLE9BQU8sQ0FBQyxFQUFFLENBQUE7QUFDNUcsQ0FBQyxDQUFBO0FBRVUsMEJBQWtCLEdBQUcsQ0FBQyxPQUFlLEVBQUUsVUFBdUI7SUFDckUsSUFBSSxnQkFBZ0IsR0FBYSxFQUFFLENBQUE7SUFDbkMsVUFBVSxDQUFDLE9BQU8sQ0FBQyxTQUFTO1FBQ3hCLGdCQUFnQixDQUFDLElBQUksQ0FBQyx5QkFBaUIsQ0FBQyxPQUFPLEVBQUUsU0FBUyxDQUFDLENBQUMsQ0FBQTtRQUM1RCxFQUFFLENBQUEsQ0FBQyxTQUFTLENBQUMsWUFBWSxDQUFDO1lBQUMsZ0JBQWdCLENBQUMsSUFBSSxDQUFDLFNBQVMsQ0FBQyxZQUFZLENBQUMsQ0FBQTtJQUM1RSxDQUFDLENBQUMsQ0FBQTtJQUNGLElBQUksYUFBYSxHQUFHLENBQUMsQ0FBQyxJQUFJLENBQUMsZ0JBQWdCLENBQUMsQ0FBQTtJQUM1QyxFQUFFLENBQUEsQ0FBQyxhQUFhLENBQUMsV0FBVyxFQUFFLEtBQUssS0FBSyxJQUFJLGFBQWEsQ0FBQyxpQkFBaUIsRUFBRSxLQUFLLElBQUksQ0FBQztRQUNuRixVQUFVLENBQUMsTUFBTSxDQUFDLENBQUMsQ0FBQyxFQUFDLENBQUMsQ0FBQyxDQUFBO0lBQzNCLE1BQU0sQ0FBQyxRQUFRLEdBQUcsZ0JBQWdCLENBQUMsSUFBSSxDQUFDLEdBQUcsQ0FBQyxDQUFBO0FBQ2hELENBQUMsQ0FBQTtBQUVVLHlCQUFpQixHQUFHLENBQUMsT0FBZSxFQUFFLFNBQW9CO0lBQ2pFLElBQUksS0FBSyxHQUFHLENBQUMsQ0FBQyxRQUFRLENBQUMsU0FBUyxDQUFDLEtBQUssQ0FBQyxHQUFHLElBQUksU0FBUyxDQUFDLEtBQUssR0FBRyxHQUFHLFNBQVMsQ0FBQyxLQUFLLENBQUE7SUFDbEYsTUFBTSxDQUFDLEdBQUcsT0FBTyxJQUFJLFNBQVMsQ0FBQyxLQUFLLElBQUksS0FBSyxFQUFFLENBQUE7QUFDbkQsQ0FBQyxDQUFBO0FBRVUsbUJBQVcsR0FBRyxDQUFDLE9BQWUsRUFBRSxPQUFlLEVBQUUsSUFBWTtJQUNwRSxNQUFNLENBQUMsaUNBQWlDLE9BQU8sZUFBZSxPQUFPOzZCQUM1QyxJQUFJLGtCQUFrQixDQUFBO0FBQ25ELENBQUMsQ0FBQSJ9
+//# sourceMappingURL=cypher.js.map

@@ -1,4 +1,4 @@
-import Schema from './Schema'
+import Schema from './schema'
 import * as _ from 'lodash'
 import * as cypher from './cypher'
 import * as validator from './validator'
@@ -12,17 +12,17 @@ export default class Model {
         this.schema = schema
     }
 
-    type(): string{
+    type(): string {
         return this.schema.label
     }
 
     toDatabaseStructure(object: any): any {
         let data: any = {}
-        for(let key in object) {
-            let value = object[key]
-            if(_.has(this.schema.fields, key)) {
+        for (let key in object) {
+            if (_.has(this.schema.fields, key)) {
+                let value = object[key]
                 let keyType = this.schema.fields[key]
-                if(keyType === Date) {
+                if (keyType === Date) {
                     data[key] = value.getTime()
                 } else if (keyType === JSON) {
                     data[key] = JSON.stringify(value)
@@ -36,13 +36,13 @@ export default class Model {
 
     fromDatabaseStructure(object: any): any {
         let data: any = {}
-        for(let key in object) {
-            let value = object[key]
-            if(_.has(this.schema.fields, key)) {     
+        for (let key in object) {
+            if (_.has(this.schema.fields, key)) {
+                let value = object[key]     
                 let keyType = this.schema.fields[key]
                 let [passed, valueCorrected] = 
                     validator.validateDataFromDbAndConvert(keyType, value)
-                if(!passed)
+                if (!passed)
                     throw new Error(`Type of ${key} provided by DB doesn't match the type 
                                      definition in the schema. We can't set property.`)
                 else
@@ -72,8 +72,8 @@ export default class Model {
 
     saveRelation(field: string, node1: any, node2: any): Promise<any> {
         return new Promise((resolve, reject) => {
-            if(_.has(this.schema.fields, field)) {
-                if(_.isUndefined(node1.id) || _.isUndefined(node2.id)) 
+            if (_.has(this.schema.fields, field)) {
+                if (_.isUndefined(node1.id) || _.isUndefined(node2.id)) 
                     return reject(`Model or relatedToModel doesn't have id. We cannot save the relation.`)
                 let type = this.schema.fields[field].type
                 let query = cypher.relateNodes(node1.id, node2.id, type)
@@ -92,12 +92,12 @@ export default class Model {
 
     findById(id: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            if(!id) return reject('`Warning: findById was called without the id parameter.')
+            if (!id) return reject('`Warning: findById was called without the id parameter.')
             let query = cypher.queryByLabelAndId(this.schema.label, id)
             this.schema.seraph.queryAsync(query)
                 .then(nodes => {
-                    if(nodes.length == 0) return reject(`Warning: no node found with id=${id}`) 
-                    if(nodes.length > 1) return reject(`Warning: found more than one node with id=${id}`) 
+                    if (nodes.length === 0) return reject(`Warning: no node found with id=${id}`) 
+                    if (nodes.length > 1) return reject(`Warning: found more than one node with id=${id}`) 
                     return resolve(this.fromDatabaseStructure(nodes[0]))
                 })
                 .catch(error => {
@@ -110,7 +110,7 @@ export default class Model {
         return new Promise((resolve, reject) => {
             this.schema.seraph.queryAsync(cypher.queryFromPredicates(this.schema.label, predicates))
                 .then(nodes => {
-                    let wrappedNodes = []
+                    let wrappedNodes: any[] = []
                     nodes.forEach(node => {
                         wrappedNodes.push(this.fromDatabaseStructure(node))
                     })
@@ -124,11 +124,13 @@ export default class Model {
 
     fetchRelation(relation: string): Promise<any> {
         return new Promise((resolve, reject) => {
+            reject('Not yet implemented.')
         })
     }
 
     fetchRelations(relations: string[]): Promise<any> {
         return new Promise((resolve, reject) => {
+            reject('Not yet implemented.')
         })
     }  
 
@@ -147,7 +149,7 @@ export default class Model {
     hardRemove(id: number): Promise<any> {
         return new Promise((resolve, reject) => {
             this.schema.seraph.deleteAsync(id)
-                .then(()=>{
+                .then(() => {
                     return resolve() 
                 })
                 .catch(error => {

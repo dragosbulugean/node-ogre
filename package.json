@@ -4,14 +4,12 @@
   "description": "Library to help you use Neo4j in an object oriended way.",
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/.bin/tsc -w",
-    "build": "./node_modules/.bin/tsc",
-    "test": "./node_modules/.bin/tsc && node ./test/all.js"
+    "start": "tslint src/* test/* && tsc -w",
+    "lint": "tslint src/* test/*",
+    "build": "tsc && tslint",
+    "test": "tsc && node ./build/test/all.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dragosbulugean/node-ogre.git"
-  },
+  "repository": "git+https://github.com/dragosbulugean/node-ogre.git",
   "keywords": [
     "object",
     "graph",
@@ -27,12 +25,18 @@
   },
   "homepage": "https://github.com/dragosbulugean/node-ogre#readme",
   "devDependencies": {
+    "@types/bluebird": "^3.0.37",
+    "@types/lodash": "^4.14.54",
+    "@types/node": "^7.0.5",
+    "@types/tape": "^4.2.29",
     "tape": "^4.5.1",
-    "typescript": "^1.8.10"
+    "tslint": "^4.5.1",
+    "typescript": "^2.2.1"
   },
   "dependencies": {
-    "bluebird": "^3.4.1",
-    "lodash": "^4.14.0",
-    "seraph": "^0.14.5"
+    "bluebird": "^3.5.0",
+    "lodash": "^4.17.4",
+    "seraph": "^0.15.2",
+    "ts-node": "^2.1.0"
   }
 }

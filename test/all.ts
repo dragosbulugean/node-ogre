@@ -1,14 +1,13 @@
 import * as test from 'tape'
 import Ogre from '../src/ogre'
-import Operators from '../src/ogre'
 import Model from '../src/model'
 import Schema from '../src/schema'
 import * as cypher from '../src/cypher'
-import {Predicate, Relation, Directions} from '../src/ogre'
+import { Predicate, Relation } from '../src/ogre'
 
-const neoURL = "http://localhost:32810"
-const neoUser =  "neo4j"
-const neoPass = "neo4j1"
+const neoURL = 'http://localhost:7474'
+const neoUser = 'neo4j'
+const neoPass = 'neo4j1'
 
 let UserSchema = new Schema('User', {
     id: Number,
@@ -30,15 +29,13 @@ let RoleSchema = new Schema('Role', {
     users: new Relation('User', 'is')
 })
 
-let ogre = new Ogre(neoURL, neoUser, neoPass, [UserSchema, RoleSchema])
-
 test('prepare', async (t) => {
     t.plan(1)
 
-    let ogre = new Ogre(neoURL, neoUser, neoPass)
+    let ogre = new Ogre(neoURL, neoUser, neoPass, [UserSchema, RoleSchema])
 
     try {
-        let result = await ogre.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r')
+        await ogre.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r')
         t.pass(`Wiped db from ${neoURL} in preparation for tests.`)
     } catch (e) {
         console.error(e)
@@ -53,7 +50,9 @@ test('cypher lib test', async (t) => {
     t.equal(cypher.whereId('n', 3), 'where id(n)=3', 'Should generate where id equals query')
     t.equal(cypher.returnNode('n'), 'return n', 'Should generate return query')
     t.equal(cypher.returnCount('n'), 'return count(n)', 'Should generate return count query')
-    t.equal(cypher.queryByLabelAndId('User', 3), 'match (n:User) where id(n)=3 return n', 'Should generate query by label and id query')
+    t.equal(
+        cypher.queryByLabelAndId('User', 3), 
+        'match (n:User) where id(n)=3 return n', 'Should generate query by label and id query')
     t.equal(cypher.queryCount('User'), 'match (n:User) return count(n)', 'Should generate query count by label')
     let predicates: Predicate[] = [
         {
@@ -69,7 +68,10 @@ test('cypher lib test', async (t) => {
         }
     ]
     let query = cypher.queryFromPredicates('User', predicates)
-    t.equal(query, 'match (n:User) where n.name="dragos" and n.age=4 return n', 'Should generate query for multiple predicates')
+    t.equal(
+        query, 
+        'match (n:User) where n.name="dragos" and n.age=4 return n', 
+        'Should generate query for multiple predicates')
 })
 
 test('integration test', async (t) => {
@@ -83,7 +85,7 @@ test('integration test', async (t) => {
     let isAlive = true
     let age = 33
     let colors = ['white', 'red', 'blue']
-    let numbers = [1,2,3,4,5]
+    let numbers = [1, 2, 3, 4, 5]
     let bools = [true, true, false]
     let json = {
         tires: '25inch',
@@ -101,7 +103,7 @@ test('integration test', async (t) => {
         bools: bools,
         json: json
     }
-    
+
     let u = await User.save(userData)
     u = await User.findById(u.id)
     t.equal(u.name, name, 'Should save string fields')
